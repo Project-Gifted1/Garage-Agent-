@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Garage Agent™ Prototype UI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif; }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <header class="border-b border-slate-700 pb-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-sky-400">🔧 Garage Agent™</h1>
+        <p class="text-xs text-slate-400">Project_Gifted1™ Autonomous AI Diagnostics</p>
+      </div>
+      <span class="bg-sky-500/10 text-sky-400 border border-sky-500/30 text-xs px-2.5 py-1 rounded">
+        FSM Active
+      </span>
+    </header>
+
+    <!-- Content Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Input Card -->
+      <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl space-y-3">
+        <h2 class="text-sm font-semibold text-slate-200">📋 Telemetry Input</h2>
+        <div>
+          <label class="text-xs text-slate-400">VIN</label>
+          <input type="text" value="1FA6P8CF0H1XXXXXX" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-slate-200 mt-1">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400">Active DTC Codes</label>
+          <input type="text" value="P0171, P0174" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-slate-200 mt-1">
+        </div>
+        <button onclick="runDiag()" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs py-2 rounded transition">
+          🚀 Run Isolated Parallel Agents
+        </button>
+      </div>
+
+      <!-- Live Diagnosis Output Card -->
+      <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl space-y-3">
+        <h2 class="text-sm font-semibold text-slate-200">🎯 Diagnostic Hypotheses</h2>
+        <div id="status-box" class="hidden space-y-2">
+          <div class="p-3 bg-red-500/10 border border-red-500/30 rounded">
+            <div class="flex justify-between text-xs font-bold text-red-400">
+              <span>Intake Manifold Gasket Failure</span>
+              <span>88%</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Electrical & Mechanical agents confirmed unmetered air correlation.</p>
+          </div>
+          <div class="p-3 bg-slate-900/50 border border-slate-700 rounded text-xs">
+            <span class="font-bold text-slate-300">Homework Action Required:</span>
+            <p class="text-slate-400 mt-1">Measure intake port vacuum level using a physical gauge to isolate gasket vs MAF sensor failure.</p>
+          </div>
+        </div>
+        <div id="placeholder" class="text-xs text-slate-500 text-center py-8">
+          Awaiting telemetry trigger...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function runDiag() {
+      document.getElementById('placeholder').classList.add('hidden');
+      document.getElementById('status-box').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
