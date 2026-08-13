@@ -3,33 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garage Agent - Diagnostic Dashboard</title>
+  <title>Garage Agent™ - Autonomous AI Diagnostics</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 1.5rem; margin: 0; }
-    .card { background: #1e293b; padding: 1.5rem; border-radius: 12px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
-    h2 { margin-top: 0; color: #38bdf8; font-size: 1.4rem; }
-    p { color: #94a3b8; font-size: 0.95rem; }
-    .btn-group { display: flex; gap: 10px; margin: 1.5rem 0; }
-    button { flex: 1; padding: 0.8rem 1rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
-    .btn-primary { background: #0284c7; color: white; }
-    .btn-primary:hover { background: #0369a1; }
-    .btn-success { background: #16a34a; color: white; }
-    .btn-success:hover { background: #15803d; }
-    pre { background: #020617; padding: 1rem; border-radius: 8px; overflow-x: auto; color: #38bd27; font-family: monospace; font-size: 0.85rem; border: 1px solid #334155; white-space: pre-wrap; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b1329; color: #e2e8f0; padding: 1rem; margin: 0; min-height: 100vh; }
+    .container { max-width: 520px; margin: 0 auto; }
+    
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid #1e293b; padding-bottom: 1rem; }
+    .title-area h1 { font-size: 1.5rem; margin: 0; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
+    .title-area p { font-size: 0.8rem; color: #64748b; margin: 4px 0 0 0; }
+    .badge { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+
+    .card { background: #131f37; border: 1px solid #1e293b; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    .card-title { font-size: 1rem; font-weight: 600; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 8px; color: #f8fafc; }
+    
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.4rem; font-weight: 500; }
+    input { width: 100%; background: #0b1329; border: 1px solid #1e293b; border-radius: 8px; padding: 0.75rem; color: #f8fafc; font-size: 0.9rem; font-family: monospace; outline: none; }
+    input:focus { border-color: #38bdf8; }
+
+    .btn-run { width: 100%; background: #0284c7; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1rem; }
+    .btn-run:hover { background: #0369a1; }
+
+    .hypothesis-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+    .hypo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .hypo-title { color: #f87171; font-weight: 700; font-size: 0.95rem; }
+    .hypo-score { color: #f87171; font-weight: 700; font-size: 1rem; }
+    .hypo-desc { font-size: 0.825rem; color: #cbd5e1; margin: 0; line-height: 1.4; }
+
+    .action-box { background: rgba(15, 23, 42, 0.6); border: 1px solid #1e293b; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; }
+    .action-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.4rem 0; }
+    .action-desc { font-size: 0.825rem; color: #94a3b8; margin: 0; line-height: 1.4; }
+
+    .placeholder-text { text-align: center; color: #64748b; font-size: 0.85rem; padding: 1.5rem 0; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Garage Agent™ Operations Panel</h2>
-    <p>Status: Multi-Agent Telematics Engine Active</p>
+  <div class="container">
     
-    <div class="btn-group">
-      <button class="btn-primary" onclick="runDiagnostics()">Run Diagnostics</button>
-      <button class="btn-success" onclick="unlockVehicle()">Remote Unlock</button>
+    <div class="header">
+      <div class="title-area">
+        <h1>🔧 Garage Agent™</h1>
+        <p>Project_Gifted1™ Autonomous AI Diagnostics</p>
+      </div>
+      <div class="badge">FSM Active</div>
     </div>
 
-    <h3>Output Stream:</h3>
-    <pre id="output">System Initialized. Ready for telematics input...</pre>
+    <!-- Telemetry Input Card -->
+    <div class="card">
+      <div class="card-title">📋 Telemetry Input</div>
+      
+      <div class="form-group">
+        <label for="vinInput">VIN</label>
+        <input type="text" id="vinInput" value="1FA6P8CF0H1XXXXXX">
+      </div>
+
+      <div class="form-group">
+        <label for="dtcInput">Active DTC Codes</label>
+        <input type="text" id="dtcInput" value="P0171, P0174">
+      </div>
+
+      <button class="btn-run" onclick="runParallelAgents()">🚀 Run Isolated Parallel Agents</button>
+    </div>
+
+    <!-- Diagnostic Hypotheses Output Card -->
+    <div class="card">
+      <div class="card-title">🎯 Diagnostic Hypotheses</div>
+      <div id="hypothesisOutput">
+        <div class="placeholder-text">Awaiting telemetry trigger...</div>
+      </div>
+    </div>
+
   </div>
 
   <script src="app.js"></script>
