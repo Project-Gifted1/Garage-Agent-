@@ -8,261 +8,162 @@
   <meta http-equiv="Expires" content="0">
   <title>Garage Agent™ - Autonomous AI Diagnostics</title>
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b1329; color: #e2e8f0; padding: 1rem; margin: 0; min-height: 100vh; }
-    .container { max-width: 520px; margin: 0 auto; }
-    
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid #1e293b; padding-bottom: 1rem; }
-    .title-area h1 { font-size: 1.5rem; margin: 0; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
-    .title-area p { font-size: 0.8rem; color: #64748b; margin: 4px 0 0 0; }
-    .badge-fsm { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
-
-    /* Live Telemetry Grid */
-    .telemetry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
-    .telem-card { background: #131f37; border: 1px solid #1e293b; border-radius: 8px; padding: 0.75rem; text-align: center; }
-    .telem-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
-    .telem-value { font-size: 0.85rem; font-weight: 700; color: #f8fafc; }
-    .telem-value.status-good { color: #4ade80; }
-    .telem-value.status-alert { color: #f87171; }
-
-    .card { background: #131f37; border: 1px solid #1e293b; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
-    .card-title { font-size: 1rem; font-weight: 600; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 8px; color: #f8fafc; }
-    
-    .form-group { margin-bottom: 1rem; }
-    label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.4rem; font-weight: 500; }
-    input { width: 100%; background: #0b1329; border: 1px solid #1e293b; border-radius: 8px; padding: 0.75rem; color: #f8fafc; font-size: 0.9rem; font-family: monospace; outline: none; }
-    input:focus { border-color: #38bdf8; }
-
-    .btn-group { display: flex; gap: 10px; margin-top: 1rem; }
-    .btn-run { flex: 2; background: #0284c7; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .btn-run:hover { background: #0369a1; }
-    
-    .btn-toggle { flex: 1; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-    .btn-toggle.unlock-mode { background: #16a34a; }
-    .btn-toggle.unlock-mode:hover { background: #15803d; }
-    .btn-toggle.lock-mode { background: #dc2626; }
-    .btn-toggle.lock-mode:hover { background: #b91c1c; }
-
-    /* Hypothesis Output Styling */
-    .hypothesis-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
-    .hypo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-    .hypo-title { color: #f87171; font-weight: 700; font-size: 0.95rem; }
-    .hypo-score { color: #f87171; font-weight: 700; font-size: 1rem; }
-    .hypo-desc { font-size: 0.825rem; color: #cbd5e1; margin: 0; line-height: 1.4; }
-
-    .action-box { background: rgba(15, 23, 42, 0.6); border: 1px solid #1e293b; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; }
-    .action-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.4rem 0; }
-    .action-desc { font-size: 0.825rem; color: #94a3b8; margin: 0; line-height: 1.4; }
-
-    /* Audit Log & Timeline */
-    .timeline-list { list-style: none; padding: 0; margin: 0; font-family: monospace; font-size: 0.78rem; max-height: 180px; overflow-y: auto; }
-    .timeline-item { padding: 8px 0; border-bottom: 1px dashed #1e293b; color: #94a3b8; display: flex; gap: 8px; }
-    .timeline-time { color: #38bdf8; font-weight: 600; min-width: 65px; }
-    .timeline-text { color: #e2e8f0; }
-
-    .placeholder-text { text-align: center; color: #64748b; font-size: 0.85rem; padding: 1.5rem 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #0b132b; color: #ffffff; padding: 16px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
+    .brand { font-size: 1.2rem; font-weight: bold; color: #00d2ff; }
+    .subbrand { font-size: 0.75rem; color: #a0aec0; }
+    .badge-fsm { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid #00d2ff; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-align: right; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .card { background: #1c2541; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; }
+    .card-sm { background: #1c2541; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center; }
+    .telem-label { font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .telem-value { font-size: 1rem; font-weight: bold; margin-top: 4px; color: #38ef7d; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    label { font-size: 0.75rem; color: #a0aec0; }
+    input { background: #0b132b; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 0.9rem; }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+    button { padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: opacity 0.2s; color: white; }
+    button:active { opacity: 0.8; }
+    .btn-agent { background: #0081a7; }
+    .btn-toggle { background: #118ab2; }
+    .timeline { display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 0.75rem; color: #a0aec0; max-height: 150px; overflow-y: auto; }
+    .timeline-entry { padding-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+    .highlight { color: #00d2ff; }
   </style>
 </head>
 <body>
+
   <div class="container">
-    
+    <!-- Header -->
     <div class="header">
-      <div class="title-area">
-        <h1>🔧 Garage Agent™</h1>
-        <p>Project_Gifted1™ Autonomous AI Diagnostics</p>
+      <div>
+        <div class="brand">🔧 Garage Agent™</div>
+        <div class="subbrand">Project_Gifted1™ Autonomous AI Diagnostics</div>
       </div>
-      <div class="badge-fsm">FSM Active</div>
+      <div class="badge-fsm">FSM<br>Active</div>
     </div>
 
-    <!-- Live Telemetry Badges -->
-    <div class="telemetry-grid">
-      <div class="telem-card">
+    <!-- Telemetry Cards -->
+    <div class="grid-3">
+      <div class="card-sm">
         <div class="telem-label">Battery</div>
-        <div class="telem-value status-good" id="valBattery">12.4 V</div>
+        <div class="telem-value">12.4 V</div>
       </div>
-      <div class="telem-card">
+      <div class="card-sm">
         <div class="telem-label">Door State</div>
-        <div class="telem-value status-alert" id="valDoor">LOCKED</div>
+        <div id="door-state" class="telem-value" style="color: #ff4d4d;">LOCKED</div>
       </div>
-      <div class="telem-card">
+      <div class="card-sm">
         <div class="telem-label">Fuel Press.</div>
-        <div class="telem-value status-good" id="valFuel">3.9 BAR</div>
+        <div class="telem-value">3.9 BAR</div>
       </div>
     </div>
 
     <!-- Controls Card -->
     <div class="card">
-      <div class="card-title">📋 Telemetry & Commands</div>
-      
-      <div class="form-group">
-        <label for="vinInput">VIN</label>
-        <input type="text" id="vinInput" value="1FA6P8CF0H1XXXXXX">
+      <h2 style="font-size: 1rem; margin-bottom: 12px;">📋 Telemetry & Commands</h2>
+      <div class="input-group">
+        <label>VIN</label>
+        <input type="text" value="1FA6P8CF0H1XXXXXX" readonly>
       </div>
-
-      <div class="form-group">
-        <label for="dtcInput">Active DTC Codes</label>
-        <input type="text" id="dtcInput" value="P0171, P0174">
+      <div class="input-group">
+        <label>Active DTC Codes</label>
+        <input type="text" value="P0171, P0174" readonly>
       </div>
-
-      <div class="btn-group">
-        <button class="btn-run" onclick="runParallelAgents()">🚀 Run Parallel Agents</button>
-        <button id="lockBtn" class="btn-toggle unlock-mode" onclick="toggleDoorState()">🔓 Unlock</button>
+      <div class="btn-grid">
+        <button class="btn-agent" onclick="runParallelAgents()">🚀 Run Parallel Agents</button>
+        <button id="lock-btn" class="btn-toggle" onclick="toggleDoorCommand()">🔒 Lock / Unlock</button>
       </div>
     </div>
 
-    <!-- Diagnostic Hypotheses Output -->
+    <!-- Hypotheses Card -->
     <div class="card">
-      <div class="card-title">🎯 Diagnostic Hypotheses</div>
-      <div id="hypothesisOutput">
-        <div class="placeholder-text">Awaiting telemetry trigger...</div>
+      <h2 style="font-size: 1.1rem; margin-bottom: 12px;">🎯 Diagnostic Hypotheses</h2>
+      <div id="hypothesis-container" style="color: #a0aec0; font-size: 0.85rem; text-align: center; padding: 12px;">
+        Awaiting telemetry trigger...
       </div>
     </div>
 
-    <!-- Audit Log / Timeline -->
+    <!-- Audit Timeline -->
     <div class="card">
-      <div class="card-title">📜 Agent Audit Timeline</div>
-      <ul class="timeline-list" id="timelineLog">
-        <li class="timeline-item">
-          <span class="timeline-time">[INIT]</span>
-          <span class="timeline-text">Telematics listener standby mode active.</span>
-        </li>
-      </ul>
+      <h2 style="font-size: 1rem; margin-bottom: 12px;">📜 Agent Audit Timeline</h2>
+      <div id="audit-timeline" class="timeline">
+        <div class="timeline-entry"><span class="highlight">[INIT]</span> Telematics listener standby mode active.</div>
+      </div>
     </div>
-
   </div>
 
   <script>
-    let isLocked = true;
+    // Live Cloudflare Worker Base API URL
+    const API_BASE_URL = "https://garage-agent.gnfcw9w5rk.workers.dev";
+    let isCurrentlyLocked = true;
 
-    function getTimestamp() {
-      const d = new Date();
-      return d.toTimeString().split(' ')[0];
-    }
-
-    function addAuditLog(msg) {
-      const logContainer = document.getElementById("timelineLog");
-      const newItem = document.createElement("li");
-      newItem.className = "timeline-item";
-      newItem.innerHTML = `<span class="timeline-time">[${getTimestamp()}]</span><span class="timeline-text">${msg}</span>`;
-      logContainer.insertBefore(newItem, logContainer.firstChild);
-    }
-
-    function runParallelAgents() {
-      const dtcRaw = document.getElementById("dtcInput").value.trim();
-      const outputEl = document.getElementById("hypothesisOutput");
-      const dtcList = dtcRaw.split(",").map(c => c.trim().toUpperCase());
-
-      addAuditLog(`Parallel agents initiated analysis for DTCs: ${dtcList.join(", ")}`);
-
-      if (dtcList.includes("P0171") && dtcList.includes("P0174")) {
-        outputEl.innerHTML = `
-          <div class="hypothesis-box">
-            <div class="hypo-header">
-              <span class="hypo-title">Intake Manifold Gasket Failure</span>
-              <span class="hypo-score">88%</span>
-            </div>
-            <p class="hypo-desc">Electrical & Mechanical agents confirmed unmetered air correlation across both banks.</p>
-          </div>
-
-          <div class="action-box">
-            <div class="action-title">Homework Action Required:</div>
-            <p class="action-desc">Measure intake port vacuum level using a physical gauge to isolate gasket vs MAF sensor failure.</p>
-          </div>
-        `;
-        addAuditLog(`Hypothesis rendered: Intake Manifold Gasket Failure (88% confidence).`);
-      } else {
-        outputEl.innerHTML = `
-          <div class="hypothesis-box" style="background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3);">
-            <div class="hypo-header">
-              <span class="hypo-title" style="color: #38bdf8;">Single Code Analysis</span>
-              <span class="hypo-score" style="color: #38bdf8;">75%</span>
-            </div>
-            <p class="hypo-desc">Processing DTC codes: ${dtcList.join(", ")}</p>
-          </div>
-        `;
-        addAuditLog(`Single code correlation evaluated for ${dtcList.join(", ")}.`);
+    // Timeline Helper
+    function addAuditLog(message) {
+      const timeline = document.getElementById('audit-timeline');
+      const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false });
+      const entry = document.createElement('div');
+      entry.className = 'timeline-entry';
+      entry.innerHTML = `<span class="highlight">[${timeStr}]</span> ${message}`;
+      if (timeline) {
+        timeline.prepend(entry);
       }
     }
 
-    function toggleDoorState() {
-      const doorBadge = document.getElementById("valDoor");
-      const lockBtn = document.getElementById("lockBtn");
+    // Cellular Door Lock / Unlock Control
+    async function toggleDoorCommand() {
+      const targetCommand = isCurrentlyLocked ? 'unlock' : 'lock';
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/command`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: targetCommand, vin: '1FA6P8CF0H1XXXXXX' })
+        });
 
-      if (isLocked) {
-        // Switch to Unlocked state
-        isLocked = false;
-        doorBadge.textContent = "UNLOCKED";
-        doorBadge.className = "telem-value status-good";
-        
-        lockBtn.textContent = "🔒 Lock";
-        lockBtn.className = "btn-toggle lock-mode";
-        
-        addAuditLog("Cellular UNLOCK command dispatched -> Door status updated to UNLOCKED.");
-      } else {
-        // Switch back to Locked state
-        isLocked = true;
-        doorBadge.textContent = "LOCKED";
-        doorBadge.className = "telem-value status-alert";
-        
-        lockBtn.textContent = "🔓 Unlock";
-        lockBtn.className = "btn-toggle unlock-mode";
-        
-        addAuditLog("Cellular LOCK command dispatched -> Door status updated to LOCKED.");
-      }
-    }
-      // Live Cloudflare Worker Base API URL
-  const API_BASE_URL = "https://garage-agent.gnfcw9w5rk.workers.dev";
+        const data = await response.json();
 
-  // 1. Live Cellular Door Lock / Unlock Control
-  async function sendDoorCommand(commandType) {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/command`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ command: commandType, vin: '1FA6P8CF0H1XXXXXX' })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        const doorBadge = document.getElementById('door-state') || document.querySelector('.telem-value');
-        if (doorBadge) {
-          doorBadge.textContent = data.doorState;
+        if (data.success) {
+          const doorBadge = document.getElementById('door-state');
+          if (doorBadge) {
+            doorBadge.textContent = data.doorState;
+            doorBadge.style.color = data.doorState === 'LOCKED' ? '#ff4d4d' : '#38ef7d';
+          }
+          isCurrentlyLocked = (data.doorState === 'LOCKED');
+          addAuditLog(data.log);
         }
-        addAuditLog(data.log);
+      } catch (error) {
+        console.error("API Command Error:", error);
       }
-    } catch (error) {
-      console.error("API Command Error:", error);
     }
-  }
 
-  // 2. Parallel Diagnostic Agent Execution
-  async function runParallelAgents() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/diagnose`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dtcCodes: ['P0171', 'P0174'] })
-      });
+    // Parallel Diagnostic Agent Execution
+    async function runParallelAgents() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/diagnose`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dtcCodes: ['P0171', 'P0174'] })
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      // Locate Diagnostic Hypotheses UI Card dynamically
-      const cards = document.querySelectorAll('.card');
-      cards.forEach(card => {
-        if (card.textContent.includes('Diagnostic Hypotheses')) {
-          card.innerHTML = `
-            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">🎯 Diagnostic Hypotheses</h2>
-            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 3px solid #00d2ff;">
+        const container = document.getElementById('hypothesis-container');
+        if (container) {
+          container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 3px solid #00d2ff; text-align: left;">
               <div style="font-weight: bold; font-size: 1rem; color: #ffffff;">${data.hypothesis} (${data.confidence}% confidence)</div>
               <div style="font-size: 0.85rem; color: #a0aec0; margin-top: 6px;">${data.action}</div>
             </div>
           `;
         }
-      });
 
-      addAuditLog(`Hypothesis rendered: ${data.hypothesis} (${data.confidence}% confidence).`);
-    } catch (error) {
-      console.error("API Diagnostic Error:", error);
+        addAuditLog(`Hypothesis rendered: ${data.hypothesis} (${data.confidence}% confidence).`);
+      } catch (error) {
+        console.error("API Diagnostic Error:", error);
+      }
     }
-  }
+  </script>
+</body>
+</html>
