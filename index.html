@@ -210,59 +210,59 @@
         addAuditLog("Cellular LOCK command dispatched -> Door status updated to LOCKED.");
       }
     }
-    // Live Cloudflare Worker Base API URL
-const API_BASE_URL = "https://garage-agent.gnfcw9w5rk.workers.dev";
+      // Live Cloudflare Worker Base API URL
+  const API_BASE_URL = "https://garage-agent.gnfcw9w5rk.workers.dev";
 
-// 1. Live Cellular Door Lock / Unlock Control
-async function sendDoorCommand(commandType) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/command`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ command: commandType, vin: '1FA6P8CF0H1XXXXXX' })
-    });
+  // 1. Live Cellular Door Lock / Unlock Control
+  async function sendDoorCommand(commandType) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/command`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: commandType, vin: '1FA6P8CF0H1XXXXXX' })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (data.success) {
-      const doorStateEl = document.getElementById('door-state') || document.querySelector('.door-state-val');
-      if (doorStateEl) {
-        doorStateEl.innerText = data.doorState;
+      if (data.success) {
+        const doorBadge = document.getElementById('door-state') || document.querySelector('.telem-value');
+        if (doorBadge) {
+          doorBadge.textContent = data.doorState;
+        }
+        addAuditLog(data.log);
       }
-      addAuditLog(data.log);
+    } catch (error) {
+      console.error("API Command Error:", error);
     }
-  } catch (error) {
-    console.error("API Command Error:", error);
   }
-}
 
-// 2. Parallel Diagnostic Agent Execution
-async function runParallelAgents() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/diagnose`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ dtcCodes: ['P0171', 'P0174'] })
-    });
+  // 2. Parallel Diagnostic Agent Execution
+  async function runParallelAgents() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/diagnose`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dtcCodes: ['P0171', 'P0174'] })
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    const hypothesisTitle = document.getElementById('hypothesis-title');
-    const actionRequired = document.getElementById('action-required');
+      // Locate Diagnostic Hypotheses UI Card dynamically
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        if (card.textContent.includes('Diagnostic Hypotheses')) {
+          card.innerHTML = `
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">🎯 Diagnostic Hypotheses</h2>
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 3px solid #00d2ff;">
+              <div style="font-weight: bold; font-size: 1rem; color: #ffffff;">${data.hypothesis} (${data.confidence}% confidence)</div>
+              <div style="font-size: 0.85rem; color: #a0aec0; margin-top: 6px;">${data.action}</div>
+            </div>
+          `;
+        }
+      });
 
-    if (hypothesisTitle) {
-      hypothesisTitle.innerText = `${data.hypothesis} ${data.confidence}%`;
+      addAuditLog(`Hypothesis rendered: ${data.hypothesis} (${data.confidence}% confidence).`);
+    } catch (error) {
+      console.error("API Diagnostic Error:", error);
     }
-    if (actionRequired) {
-      actionRequired.innerText = data.action;
-    }
-
-    addAuditLog(`Hypothesis rendered: ${data.hypothesis} (${data.confidence}% confidence).`);
-  } catch (error) {
-    console.error("API Diagnostic Error:", error);
   }
-}
-
-  </script>
-</body>
-</html>
