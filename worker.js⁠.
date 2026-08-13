@@ -1,0 +1,60 @@
+export default {
+  async fetch(request, env, ctx) {
+    // Handle CORS for requests coming from ct-gifted1.github.io
+    const corsHeaders = {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    };
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
+
+    const url = new URL(request.url);
+
+    // Endpoint 1: Lock / Unlock State Control
+    if (url.pathname === '/api/command' && request.method === 'POST') {
+      const { command, vin } = await request.json();
+      const newStatus = command.toUpperCase() === 'LOCK' ? 'LOCKED' : 'UNLOCKED';
+      
+      return new Response(
+        JSON.stringify({
+          success: true,
+          vin: vin || '1FA6P8CF0H1XXXXXX',
+          doorState: newStatus,
+          timestamp: new Date().toISOString(),
+          log: `Cellular ${command.toUpperCase()} command executed via Cloudflare Edge.`
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Endpoint 2: Real-time DTC Diagnostics Evaluator
+    if (url.pathname === '/api/diagnose' && request.method === 'POST') {
+      const { dtcCodes } = await request.json();
+      
+      let hypothesis = "Normal Engine Operational Status";
+      let confidence = 95;
+      let action = "No repair required. System operating within nominal values.";
+
+      if (dtcCodes && (dtcCodes.includes('P0171') || dtcCodes.includes('P0174'))) {
+        hypothesis = "Intake Manifold Gasket Failure";
+        confidence = 88;
+        action = "Measure intake port vacuum level using a physical gauge to isolate gasket vs MAF sensor failure.";
+      }
+
+      return new Response(
+        JSON.stringify({
+          hypothesis,
+          confidence,
+          action,
+          evaluatedAt: new Date().toISOString()
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    return new Response('Garage Agent API Operational', { status: 200, headers: corsHeaders });
+  }
+};
