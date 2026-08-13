@@ -3,71 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garage Agent™ Prototype UI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Garage Agent - Diagnostic Dashboard</title>
   <style>
-    body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, sans-serif; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 1.5rem; margin: 0; }
+    .card { background: #1e293b; padding: 1.5rem; border-radius: 12px; max-width: 600px; margin: 0 auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
+    h2 { margin-top: 0; color: #38bdf8; font-size: 1.4rem; }
+    p { color: #94a3b8; font-size: 0.95rem; }
+    .btn-group { display: flex; gap: 10px; margin: 1.5rem 0; }
+    button { flex: 1; padding: 0.8rem 1rem; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
+    .btn-primary { background: #0284c7; color: white; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-success:hover { background: #15803d; }
+    pre { background: #020617; padding: 1rem; border-radius: 8px; overflow-x: auto; color: #38bd27; font-family: monospace; font-size: 0.85rem; border: 1px solid #334155; white-space: pre-wrap; }
   </style>
 </head>
-<body class="p-4 md:p-8">
-  <div class="max-w-4xl mx-auto space-y-6">
-    <!-- Header -->
-    <header class="border-b border-slate-700 pb-4 flex justify-between items-center">
-      <div>
-        <h1 class="text-2xl font-bold text-sky-400">🔧 Garage Agent™</h1>
-        <p class="text-xs text-slate-400">Project_Gifted1™ Autonomous AI Diagnostics</p>
-      </div>
-      <span class="bg-sky-500/10 text-sky-400 border border-sky-500/30 text-xs px-2.5 py-1 rounded">
-        FSM Active
-      </span>
-    </header>
-
-    <!-- Content Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Input Card -->
-      <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl space-y-3">
-        <h2 class="text-sm font-semibold text-slate-200">📋 Telemetry Input</h2>
-        <div>
-          <label class="text-xs text-slate-400">VIN</label>
-          <input type="text" value="1FA6P8CF0H1XXXXXX" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-slate-200 mt-1">
-        </div>
-        <div>
-          <label class="text-xs text-slate-400">Active DTC Codes</label>
-          <input type="text" value="P0171, P0174" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-xs text-slate-200 mt-1">
-        </div>
-        <button onclick="runDiag()" class="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs py-2 rounded transition">
-          🚀 Run Isolated Parallel Agents
-        </button>
-      </div>
-
-      <!-- Live Diagnosis Output Card -->
-      <div class="bg-slate-800/60 border border-slate-700 p-4 rounded-xl space-y-3">
-        <h2 class="text-sm font-semibold text-slate-200">🎯 Diagnostic Hypotheses</h2>
-        <div id="status-box" class="hidden space-y-2">
-          <div class="p-3 bg-red-500/10 border border-red-500/30 rounded">
-            <div class="flex justify-between text-xs font-bold text-red-400">
-              <span>Intake Manifold Gasket Failure</span>
-              <span>88%</span>
-            </div>
-            <p class="text-[11px] text-slate-400 mt-1">Electrical & Mechanical agents confirmed unmetered air correlation.</p>
-          </div>
-          <div class="p-3 bg-slate-900/50 border border-slate-700 rounded text-xs">
-            <span class="font-bold text-slate-300">Homework Action Required:</span>
-            <p class="text-slate-400 mt-1">Measure intake port vacuum level using a physical gauge to isolate gasket vs MAF sensor failure.</p>
-          </div>
-        </div>
-        <div id="placeholder" class="text-xs text-slate-500 text-center py-8">
-          Awaiting telemetry trigger...
-        </div>
-      </div>
+<body>
+  <div class="card">
+    <h2>Garage Agent™ Operations Panel</h2>
+    <p>Status: Multi-Agent Telematics Engine Active</p>
+    
+    <div class="btn-group">
+      <button class="btn-primary" onclick="runDiagnostics()">Run Diagnostics</button>
+      <button class="btn-success" onclick="unlockVehicle()">Remote Unlock</button>
     </div>
+
+    <h3>Output Stream:</h3>
+    <pre id="output">System Initialized. Ready for telematics input...</pre>
   </div>
 
-  <script>
-    function runDiag() {
-      document.getElementById('placeholder').classList.add('hidden');
-      document.getElementById('status-box').classList.remove('hidden');
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
