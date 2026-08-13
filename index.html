@@ -4,16 +4,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Garage Agent™ - Autonomous AI Diagnostics</title>
   <style>
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0b1329; color: #e2e8f0; padding: 1rem; margin: 0; min-height: 100vh; }
     .container { max-width: 520px; margin: 0 auto; }
     
-    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid #1e293b; padding-bottom: 1rem; }
+    .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; border-bottom: 1px solid #1e293b; padding-bottom: 1rem; }
     .title-area h1 { font-size: 1.5rem; margin: 0; color: #38bdf8; display: flex; align-items: center; gap: 8px; }
     .title-area p { font-size: 0.8rem; color: #64748b; margin: 4px 0 0 0; }
-    .badge { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+    .badge-fsm { background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; }
+
+    /* Live Telemetry Grid */
+    .telemetry-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.25rem; }
+    .telem-card { background: #131f37; border: 1px solid #1e293b; border-radius: 8px; padding: 0.75rem; text-align: center; }
+    .telem-label { font-size: 0.7rem; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; }
+    .telem-value { font-size: 0.85rem; font-weight: 700; color: #f8fafc; }
+    .telem-value.status-good { color: #4ade80; }
+    .telem-value.status-alert { color: #f87171; }
 
     .card { background: #131f37; border: 1px solid #1e293b; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.25rem; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
     .card-title { font-size: 1rem; font-weight: 600; margin: 0 0 1rem 0; display: flex; align-items: center; gap: 8px; color: #f8fafc; }
@@ -24,12 +35,13 @@
     input:focus { border-color: #38bdf8; }
 
     .btn-group { display: flex; gap: 10px; margin-top: 1rem; }
-    .btn-run { flex: 2; background: #0284c7; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-run { flex: 2; background: #0284c7; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-run:hover { background: #0369a1; }
     
-    .btn-unlock { flex: 1; background: #16a34a; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-unlock { flex: 1; background: #16a34a; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-unlock:hover { background: #15803d; }
 
+    /* Hypothesis Output Styling */
     .hypothesis-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
     .hypo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
     .hypo-title { color: #f87171; font-weight: 700; font-size: 0.95rem; }
@@ -40,7 +52,11 @@
     .action-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.4rem 0; }
     .action-desc { font-size: 0.825rem; color: #94a3b8; margin: 0; line-height: 1.4; }
 
-    .status-box { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 1rem; margin-top: 0.75rem; color: #4ade80; font-size: 0.85rem; line-height: 1.4; }
+    /* Audit Log & Timeline */
+    .timeline-list { list-style: none; padding: 0; margin: 0; font-family: monospace; font-size: 0.78rem; max-height: 180px; overflow-y: auto; }
+    .timeline-item { padding: 8px 0; border-bottom: 1px dashed #1e293b; color: #94a3b8; display: flex; gap: 8px; }
+    .timeline-time { color: #38bdf8; font-weight: 600; min-width: 65px; }
+    .timeline-text { color: #e2e8f0; }
 
     .placeholder-text { text-align: center; color: #64748b; font-size: 0.85rem; padding: 1.5rem 0; }
   </style>
@@ -53,10 +69,26 @@
         <h1>🔧 Garage Agent™</h1>
         <p>Project_Gifted1™ Autonomous AI Diagnostics</p>
       </div>
-      <div class="badge">FSM Active</div>
+      <div class="badge-fsm">FSM Active</div>
     </div>
 
-    <!-- Telemetry & Controls Input Card -->
+    <!-- Live Telemetry Badges -->
+    <div class="telemetry-grid">
+      <div class="telem-card">
+        <div class="telem-label">Battery</div>
+        <div class="telem-value status-good" id="valBattery">12.4 V</div>
+      </div>
+      <div class="telem-card">
+        <div class="telem-label">Door State</div>
+        <div class="telem-value status-alert" id="valDoor">LOCKED</div>
+      </div>
+      <div class="telem-card">
+        <div class="telem-label">Fuel Press.</div>
+        <div class="telem-value status-good" id="valFuel">3.9 BAR</div>
+      </div>
+    </div>
+
+    <!-- Controls Card -->
     <div class="card">
       <div class="card-title">📋 Telemetry & Commands</div>
       
@@ -76,22 +108,47 @@
       </div>
     </div>
 
-    <!-- Output Card -->
+    <!-- Diagnostic Hypotheses Output -->
     <div class="card">
-      <div class="card-title">🎯 Output Stream</div>
+      <div class="card-title">🎯 Diagnostic Hypotheses</div>
       <div id="hypothesisOutput">
-        <div class="placeholder-text">Awaiting telemetry trigger or command...</div>
+        <div class="placeholder-text">Awaiting telemetry trigger...</div>
       </div>
+    </div>
+
+    <!-- Audit Log / Timeline -->
+    <div class="card">
+      <div class="card-title">📜 Agent Audit Timeline</div>
+      <ul class="timeline-list" id="timelineLog">
+        <li class="timeline-item">
+          <span class="timeline-time">[INIT]</span>
+          <span class="timeline-text">Telematics listener standby mode active.</span>
+        </li>
+      </ul>
     </div>
 
   </div>
 
   <script>
+    function getTimestamp() {
+      const d = new Date();
+      return d.toTimeString().split(' ')[0];
+    }
+
+    function addAuditLog(msg) {
+      const logContainer = document.getElementById("timelineLog");
+      const newItem = document.createElement("li");
+      newItem.className = "timeline-item";
+      newItem.innerHTML = `<span class="timeline-time">[${getTimestamp()}]</span><span class="timeline-text">${msg}</span>`;
+      logContainer.insertBefore(newItem, logContainer.firstChild);
+    }
+
     function runParallelAgents() {
       const dtcRaw = document.getElementById("dtcInput").value.trim();
       const outputEl = document.getElementById("hypothesisOutput");
-
       const dtcList = dtcRaw.split(",").map(c => c.trim().toUpperCase());
+
+      addAuditLog(`Parallel agents initiated analysis for DTCs: ${dtcList.join(", ")}`);
 
       if (dtcList.includes("P0171") && dtcList.includes("P0174")) {
         outputEl.innerHTML = `
@@ -108,27 +165,30 @@
             <p class="action-desc">Measure intake port vacuum level using a physical gauge to isolate gasket vs MAF sensor failure.</p>
           </div>
         `;
+        addAuditLog(`Hypothesis rendered: Intake Manifold Gasket Failure (88% confidence).`);
       } else {
         outputEl.innerHTML = `
           <div class="hypothesis-box" style="background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3);">
             <div class="hypo-header">
-              <span class="hypo-title" style="color: #38bdf8;">Analysis Active</span>
+              <span class="hypo-title" style="color: #38bdf8;">Single Code Analysis</span>
               <span class="hypo-score" style="color: #38bdf8;">75%</span>
             </div>
-            <p class="hypo-desc">Processing codes: ${dtcList.join(", ")}</p>
+            <p class="hypo-desc">Processing DTC codes: ${dtcList.join(", ")}</p>
           </div>
         `;
+        addAuditLog(`Single code correlation evaluated for ${dtcList.join(", ")}.`);
       }
     }
 
     function unlockVehicle() {
-      const outputEl = document.getElementById("hypothesisOutput");
-      outputEl.innerHTML = `
-        <div class="status-box">
-          <strong>📡 Cellular Command Dispatched:</strong><br>
-          [SUCCESS 200]: Door unlock signal transmitted over cellular cloud gateway to vehicle.
-        </div>
-      `;
+      const doorBadge = document.getElementById("valDoor");
+      
+      // Update Telemetry Badge
+      doorBadge.textContent = "UNLOCKED";
+      doorBadge.className = "telem-value status-good";
+
+      // Log event
+      addAuditLog("Cellular unlock command dispatched -> Door status updated to UNLOCKED.");
     }
   </script>
 </body>
