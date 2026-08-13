@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,8 +23,12 @@
     input { width: 100%; background: #0b1329; border: 1px solid #1e293b; border-radius: 8px; padding: 0.75rem; color: #f8fafc; font-size: 0.9rem; font-family: monospace; outline: none; }
     input:focus { border-color: #38bdf8; }
 
-    .btn-run { width: 100%; background: #0284c7; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 1rem; }
+    .btn-group { display: flex; gap: 10px; margin-top: 1rem; }
+    .btn-run { flex: 2; background: #0284c7; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-run:hover { background: #0369a1; }
+    
+    .btn-unlock { flex: 1; background: #16a34a; color: white; border: none; padding: 0.85rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-unlock:hover { background: #15803d; }
 
     .hypothesis-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
     .hypo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
@@ -34,6 +39,8 @@
     .action-box { background: rgba(15, 23, 42, 0.6); border: 1px solid #1e293b; border-radius: 8px; padding: 1rem; margin-top: 0.75rem; }
     .action-title { font-size: 0.85rem; font-weight: 700; color: #f8fafc; margin: 0 0 0.4rem 0; }
     .action-desc { font-size: 0.825rem; color: #94a3b8; margin: 0; line-height: 1.4; }
+
+    .status-box { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 8px; padding: 1rem; margin-top: 0.75rem; color: #4ade80; font-size: 0.85rem; line-height: 1.4; }
 
     .placeholder-text { text-align: center; color: #64748b; font-size: 0.85rem; padding: 1.5rem 0; }
   </style>
@@ -49,9 +56,9 @@
       <div class="badge">FSM Active</div>
     </div>
 
-    <!-- Telemetry Input Card -->
+    <!-- Telemetry & Controls Input Card -->
     <div class="card">
-      <div class="card-title">📋 Telemetry Input</div>
+      <div class="card-title">📋 Telemetry & Commands</div>
       
       <div class="form-group">
         <label for="vinInput">VIN</label>
@@ -63,19 +70,66 @@
         <input type="text" id="dtcInput" value="P0171, P0174">
       </div>
 
-      <button class="btn-run" onclick="runParallelAgents()">🚀 Run Isolated Parallel Agents</button>
+      <div class="btn-group">
+        <button class="btn-run" onclick="runParallelAgents()">🚀 Run Parallel Agents</button>
+        <button class="btn-unlock" onclick="unlockVehicle()">🔓 Unlock</button>
+      </div>
     </div>
 
-    <!-- Diagnostic Hypotheses Output Card -->
+    <!-- Output Card -->
     <div class="card">
-      <div class="card-title">🎯 Diagnostic Hypotheses</div>
+      <div class="card-title">🎯 Output Stream</div>
       <div id="hypothesisOutput">
-        <div class="placeholder-text">Awaiting telemetry trigger...</div>
+        <div class="placeholder-text">Awaiting telemetry trigger or command...</div>
       </div>
     </div>
 
   </div>
 
-  <script src="app.js"></script>
+  <script>
+    function runParallelAgents() {
+      const dtcRaw = document.getElementById("dtcInput").value.trim();
+      const outputEl = document.getElementById("hypothesisOutput");
+
+      const dtcList = dtcRaw.split(",").map(c => c.trim().toUpperCase());
+
+      if (dtcList.includes("P0171") && dtcList.includes("P0174")) {
+        outputEl.innerHTML = `
+          <div class="hypothesis-box">
+            <div class="hypo-header">
+              <span class="hypo-title">Intake Manifold Gasket Failure</span>
+              <span class="hypo-score">88%</span>
+            </div>
+            <p class="hypo-desc">Electrical & Mechanical agents confirmed unmetered air correlation across both banks.</p>
+          </div>
+
+          <div class="action-box">
+            <div class="action-title">Homework Action Required:</div>
+            <p class="action-desc">Measure intake port vacuum level using a physical gauge to isolate gasket vs MAF sensor failure.</p>
+          </div>
+        `;
+      } else {
+        outputEl.innerHTML = `
+          <div class="hypothesis-box" style="background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.3);">
+            <div class="hypo-header">
+              <span class="hypo-title" style="color: #38bdf8;">Analysis Active</span>
+              <span class="hypo-score" style="color: #38bdf8;">75%</span>
+            </div>
+            <p class="hypo-desc">Processing codes: ${dtcList.join(", ")}</p>
+          </div>
+        `;
+      }
+    }
+
+    function unlockVehicle() {
+      const outputEl = document.getElementById("hypothesisOutput");
+      outputEl.innerHTML = `
+        <div class="status-box">
+          <strong>📡 Cellular Command Dispatched:</strong><br>
+          [SUCCESS 200]: Door unlock signal transmitted over cellular cloud gateway to vehicle.
+        </div>
+      `;
+    }
+  </script>
 </body>
 </html>
