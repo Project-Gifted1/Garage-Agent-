@@ -3,213 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garage Agent™ - Autonomous AI Diagnostics</title>
+  <title>Garage Agent™ | Autonomous Diagnostics</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: #0b132b; color: #ffffff; padding: 16px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-    .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 16px; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #0b132b; color: #ffffff; padding: 16px; line-height: 1.5; }
+    .container { width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1c2541; padding-bottom: 12px; }
     .brand { font-size: 1.2rem; font-weight: bold; color: #00d2ff; }
-    .subbrand { font-size: 0.75rem; color: #a0aec0; }
-    .badge-fsm { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid #00d2ff; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; text-align: right; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .card { background: #1c2541; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; }
-    .card-sm { background: #1c2541; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px; text-align: center; }
-    .telem-label { font-size: 0.65rem; color: #a0aec0; text-transform: uppercase; letter-spacing: 0.5px; }
-    .telem-value { font-size: 1rem; font-weight: bold; margin-top: 4px; color: #38ef7d; }
+    .subbrand { font-size: 0.75rem; color: #8d99ae; }
+    .badge-fsm { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid #00d2ff; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; font-weight: bold; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .card { background: #1c2541; border: 1px solid #3a506b; border-radius: 10px; padding: 14px; }
+    .card-sm { background: #1c2541; border: 1px solid #3a506b; border-radius: 8px; padding: 10px; text-align: center; }
+    .telem-label { font-size: 0.65rem; color: #8d99ae; text-transform: uppercase; margin-bottom: 4px; }
+    .telem-value { font-size: 1rem; font-weight: bold; }
     .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-    label { font-size: 0.75rem; color: #a0aec0; }
-    input { background: #0b132b; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 10px; border-radius: 6px; font-family: monospace; font-size: 0.9rem; }
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-    button { padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: opacity 0.2s; color: white; }
+    label { font-size: 0.75rem; color: #8d99ae; }
+    input { background: #0b132b; border: 1px solid #3a506b; color: #fff; padding: 10px; border-radius: 6px; font-size: 0.9rem; }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    button { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; font-size: 0.85rem; }
     button:active { opacity: 0.8; }
     .btn-connect { background: #6c5ce7; width: 100%; margin-bottom: 12px; }
     .btn-agent { background: #0081a7; }
     .btn-toggle { background: #118ab2; }
-    .timeline { display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 0.75rem; color: #a0aec0; max-height: 150px; overflow-y: auto; }
-    .timeline-entry { padding-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.05); }
+    .timeline { display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 0.75rem; }
+    .timeline-entry { padding-bottom: 6px; border-bottom: 1px dashed #3a506b; color: #8d99ae; }
     .highlight { color: #00d2ff; }
+    .hypo-card { background: #0b132b; border-left: 3px solid #00d2ff; padding: 10px; margin-top: 8px; border-radius: 4px; }
+    .hypo-desc { font-size: 0.75rem; color: #8d99ae; margin-top: 4px; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- Header -->
+    
+    <!-- Header Section -->
     <div class="header">
       <div>
         <div class="brand">🔧 Garage Agent™</div>
         <div class="subbrand">Project_Gifted1™ Autonomous AI Diagnostics</div>
       </div>
-      <div class="badge-fsm">FSM<br>Active</div>
+      <div class="badge-fsm">FSM Active</div>
     </div>
 
-    <!-- Telemetry Cards -->
+    <!-- Live Telemetry Grid -->
     <div class="grid-3">
       <div class="card-sm">
         <div class="telem-label">Battery</div>
-        <div id="battery-val" class="telem-value">12.4 V</div>
+        <div class="telem-value" style="color: #4edd85;">12.4 V</div>
       </div>
       <div class="card-sm">
         <div class="telem-label">Door State</div>
-        <div id="door-state" class="telem-value" style="color: #ff4d4d;">LOCKED</div>
+        <div class="telem-value" style="color: #ff5964;">LOCKED</div>
       </div>
       <div class="card-sm">
         <div class="telem-label">Fuel Press.</div>
-        <div id="fuel-val" class="telem-value">3.9 BAR</div>
+        <div class="telem-value" style="color: #4edd85;">3.9 BAR</div>
       </div>
     </div>
 
-    <!-- Controls Card -->
+    <!-- Telemetry & Commands Card -->
     <div class="card">
-      <h2 style="font-size: 1rem; margin-bottom: 12px;">📋 Telemetry & Commands</h2>
+      <h3 style="font-size: 0.95rem; margin-bottom: 12px;">📋 Telemetry & Commands</h3>
       
-      <!-- Connect Vehicle Button -->
-      <button id="connect-btn" class="btn-connect" onclick="connectVehicle()">🚘 Connect Real Vehicle (Smartcar)</button>
+      <!-- DIRECT SMARTCAR OAUTH REDIRECT BUTTON -->
+      <button class="btn-connect" onclick="window.location.href='https://garage-agent.gnfcw9w5rk.workers.dev/auth'">
+        🚘 Connect Real Vehicle (Smartcar)
+      </button>
 
       <div class="input-group">
         <label>VIN / Vehicle ID</label>
-        <input id="vin-input" type="text" value="1FA6P8CF0H1XXXXXX">
+        <input type="text" id="vin-input" value="1FA6P8CF0H1XXXXXX" readonly>
       </div>
+
       <div class="input-group">
         <label>Active DTC Codes</label>
-        <input id="dtc-input" type="text" value="P0171, P0174">
+        <input type="text" id="dtc-input" value="P0171, P0174">
       </div>
+
       <div class="btn-grid">
-        <button class="btn-agent" onclick="runParallelAgents()">🚀 Run Parallel Agents</button>
-        <button id="lock-btn" class="btn-toggle" onclick="toggleDoorCommand()">🔒 Lock / Unlock</button>
+        <button class="btn-agent" onclick="runAgents()">🚀 Run Parallel Agents</button>
+        <button class="btn-toggle" onclick="toggleLock()">🔒 Lock / Unlock</button>
       </div>
     </div>
 
-    <!-- Hypotheses Card -->
+    <!-- Diagnostic Hypotheses Output -->
     <div class="card">
-      <h2 style="font-size: 1.1rem; margin-bottom: 12px;">🎯 Diagnostic Hypotheses</h2>
-      <div id="hypothesis-container" style="color: #a0aec0; font-size: 0.85rem; text-align: center; padding: 12px;">
-        Awaiting telemetry trigger...
+      <h3 style="font-size: 0.95rem; margin-bottom: 8px;">🎯 Diagnostic Hypotheses</h3>
+      <div id="hypotheses-container">
+        <p style="font-size: 0.8rem; color: #8d99ae; text-align: center; padding: 12px;">Awaiting telemetry trigger...</p>
       </div>
     </div>
 
-    <!-- Audit Timeline -->
+    <!-- Agent Audit Timeline -->
     <div class="card">
-      <h2 style="font-size: 1rem; margin-bottom: 12px;">📜 Agent Audit Timeline</h2>
-      <div id="audit-timeline" class="timeline">
-        <div class="timeline-entry"><span class="highlight">[INIT]</span> Telematics listener standby mode active.</div>
+      <h3 style="font-size: 0.95rem; margin-bottom: 12px;">📜 Agent Audit Timeline</h3>
+      <div class="timeline" id="timeline">
+        <div class="timeline-entry">[INIT] Telematics listener standby mode active.</div>
       </div>
     </div>
+
   </div>
 
-  <script>
-    const API_BASE_URL = "https://garage-agent.gnfcw9w5rk.workers.dev";
-    let isCurrentlyLocked = true;
-
-    // Helper: Add entry to Audit Timeline
-    function addAuditLog(message) {
-      const timeline = document.getElementById('audit-timeline');
-      const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false });
-      const entry = document.createElement('div');
-      entry.className = 'timeline-entry';
-      entry.innerHTML = `<span class="highlight">[${timeStr}]</span> ${message}`;
-      if (timeline) {
-        timeline.prepend(entry);
-      }
-    }
-
-    // Helper: Retrieve active auth session token
-    function getAuthToken() {
-      return localStorage.getItem('vehicle_auth_token') || 'demo-session-token';
-    }
-
-    // 1. Connect Vehicle (Smartcar OAuth Flow)
-    function connectVehicle() {
-      const token = getAuthToken();
-      addAuditLog("Initiating Smartcar OAuth pairing flow...");
-      
-      // Smartcar OAuth redirect placeholder URL
-      const smartcarAuthUrl = `${API_BASE_URL}/api/auth?session=${encodeURIComponent(token)}`;
-      addAuditLog("Redirecting to OEM login portal...");
-      
-      // Simulating connection handshake for local test setup
-      setTimeout(() => {
-        addAuditLog("Vehicle paired successfully! Access token cached.");
-        document.getElementById('connect-btn').innerText = "✅ Vehicle Paired (Active)";
-        document.getElementById('connect-btn').style.background = "#2ed573";
-      }, 1200);
-    }
-
-    // 2. Lock / Unlock Door Control
-    async function toggleDoorCommand() {
-      const targetCommand = isCurrentlyLocked ? 'unlock' : 'lock';
-      const doorBadge = document.getElementById('door-state');
-      const vin = document.getElementById('vin-input').value || '1FA6P8CF0H1XXXXXX';
-      
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/command`, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-          },
-          body: JSON.stringify({ command: targetCommand, vin: vin })
-        });
-        const data = await response.json();
-        if (data.success) {
-          doorBadge.textContent = data.doorState;
-          doorBadge.style.color = data.doorState === 'LOCKED' ? '#ff4d4d' : '#38ef7d';
-          isCurrentlyLocked = (data.doorState === 'LOCKED');
-          addAuditLog(data.log);
-          return;
-        }
-      } catch (error) {
-        console.warn("API fallback mode active");
-      }
-
-      // Standalone fallback
-      isCurrentlyLocked = !isCurrentlyLocked;
-      const newState = isCurrentlyLocked ? 'LOCKED' : 'UNLOCKED';
-      doorBadge.textContent = newState;
-      doorBadge.style.color = isCurrentlyLocked ? '#ff4d4d' : '#38ef7d';
-      addAuditLog(`Cellular ${targetCommand.toUpperCase()} command dispatched -> Door status updated to ${newState}.`);
-    }
-
-    // 3. Parallel Diagnostic Agent Execution
-    async function runParallelAgents() {
-      const container = document.getElementById('hypothesis-container');
-      const rawDtcs = document.getElementById('dtc-input').value;
-      const dtcArray = rawDtcs.split(',').map(code => code.trim());
-      
-      let hypothesis = 'Intake Manifold Gasket Failure';
-      let confidence = 88;
-      let action = 'Perform smoke test on intake system and monitor long-term fuel trim values.';
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/diagnose`, {
-          method: 'POST',
-          mode: 'cors',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${getAuthToken()}`
-          },
-          body: JSON.stringify({ dtcCodes: dtcArray })
-        });
-        const data = await response.json();
-        if (data.hypothesis) {
-          hypothesis = data.hypothesis;
-          confidence = data.confidence;
-          action = data.action;
-        }
-      } catch (error) {
-        console.warn("API fallback mode active");
-      }
-
-      container.innerHTML = `
-        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border-left: 3px solid #00d2ff; text-align: left;">
-          <div style="font-weight: bold; font-size: 1rem; color: #ffffff;">${hypothesis} (${confidence}% confidence)</div>
-          <div style="font-size: 0.85rem; color: #a0aec0; margin-top: 6px;">${action}</div>
-        </div>
-      `;
-
-      addAuditLog(`Parsed DTCs [${dtcArray.join(', ')}]. Hypothesis: ${hypothesis} (${confidence}% confidence).`);
-    }
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>
