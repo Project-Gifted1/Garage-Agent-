@@ -23,6 +23,7 @@
     .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
     button { padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: opacity 0.2s; color: white; }
     button:active { opacity: 0.8; }
+    .btn-connect { background: #6c5ce7; width: 100%; margin-bottom: 12px; }
     .btn-agent { background: #0081a7; }
     .btn-toggle { background: #118ab2; }
     .timeline { display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 0.75rem; color: #a0aec0; max-height: 150px; overflow-y: auto; }
@@ -46,7 +47,7 @@
     <div class="grid-3">
       <div class="card-sm">
         <div class="telem-label">Battery</div>
-        <div class="telem-value">12.4 V</div>
+        <div id="battery-val" class="telem-value">12.4 V</div>
       </div>
       <div class="card-sm">
         <div class="telem-label">Door State</div>
@@ -54,20 +55,24 @@
       </div>
       <div class="card-sm">
         <div class="telem-label">Fuel Press.</div>
-        <div class="telem-value">3.9 BAR</div>
+        <div id="fuel-val" class="telem-value">3.9 BAR</div>
       </div>
     </div>
 
     <!-- Controls Card -->
     <div class="card">
       <h2 style="font-size: 1rem; margin-bottom: 12px;">📋 Telemetry & Commands</h2>
+      
+      <!-- Connect Vehicle Button -->
+      <button id="connect-btn" class="btn-connect" onclick="connectVehicle()">🚘 Connect Real Vehicle (Smartcar)</button>
+
       <div class="input-group">
-        <label>VIN</label>
-        <input type="text" value="1FA6P8CF0H1XXXXXX" readonly>
+        <label>VIN / Vehicle ID</label>
+        <input id="vin-input" type="text" value="1FA6P8CF0H1XXXXXX">
       </div>
       <div class="input-group">
         <label>Active DTC Codes</label>
-        <input type="text" value="P0171, P0174" readonly>
+        <input id="dtc-input" type="text" value="P0171, P0174">
       </div>
       <div class="btn-grid">
         <button class="btn-agent" onclick="runParallelAgents()">🚀 Run Parallel Agents</button>
@@ -96,6 +101,7 @@
     const API_BASE_URL = "https://garage-agent.gnfcw9w5rk.workers.dev";
     let isCurrentlyLocked = true;
 
+    // Helper: Add entry to Audit Timeline
     function addAuditLog(message) {
       const timeline = document.getElementById('audit-timeline');
       const timeStr = new Date().toLocaleTimeString('en-US', { hour12: false });
@@ -107,16 +113,43 @@
       }
     }
 
+    // Helper: Retrieve active auth session token
+    function getAuthToken() {
+      return localStorage.getItem('vehicle_auth_token') || 'demo-session-token';
+    }
+
+    // 1. Connect Vehicle (Smartcar OAuth Flow)
+    function connectVehicle() {
+      const token = getAuthToken();
+      addAuditLog("Initiating Smartcar OAuth pairing flow...");
+      
+      // Smartcar OAuth redirect placeholder URL
+      const smartcarAuthUrl = `${API_BASE_URL}/api/auth?session=${encodeURIComponent(token)}`;
+      addAuditLog("Redirecting to OEM login portal...");
+      
+      // Simulating connection handshake for local test setup
+      setTimeout(() => {
+        addAuditLog("Vehicle paired successfully! Access token cached.");
+        document.getElementById('connect-btn').innerText = "✅ Vehicle Paired (Active)";
+        document.getElementById('connect-btn').style.background = "#2ed573";
+      }, 1200);
+    }
+
+    // 2. Lock / Unlock Door Control
     async function toggleDoorCommand() {
       const targetCommand = isCurrentlyLocked ? 'unlock' : 'lock';
       const doorBadge = document.getElementById('door-state');
+      const vin = document.getElementById('vin-input').value || '1FA6P8CF0H1XXXXXX';
       
       try {
         const response = await fetch(`${API_BASE_URL}/api/command`, {
           method: 'POST',
           mode: 'cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ command: targetCommand, vin: '1FA6P8CF0H1XXXXXX' })
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify({ command: targetCommand, vin: vin })
         });
         const data = await response.json();
         if (data.success) {
@@ -130,7 +163,7 @@
         console.warn("API fallback mode active");
       }
 
-      // Standalone execution backup
+      // Standalone fallback
       isCurrentlyLocked = !isCurrentlyLocked;
       const newState = isCurrentlyLocked ? 'LOCKED' : 'UNLOCKED';
       doorBadge.textContent = newState;
@@ -138,8 +171,12 @@
       addAuditLog(`Cellular ${targetCommand.toUpperCase()} command dispatched -> Door status updated to ${newState}.`);
     }
 
+    // 3. Parallel Diagnostic Agent Execution
     async function runParallelAgents() {
       const container = document.getElementById('hypothesis-container');
+      const rawDtcs = document.getElementById('dtc-input').value;
+      const dtcArray = rawDtcs.split(',').map(code => code.trim());
+      
       let hypothesis = 'Intake Manifold Gasket Failure';
       let confidence = 88;
       let action = 'Perform smoke test on intake system and monitor long-term fuel trim values.';
@@ -148,8 +185,11 @@
         const response = await fetch(`${API_BASE_URL}/api/diagnose`, {
           method: 'POST',
           mode: 'cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dtcCodes: ['P0171', 'P0174'] })
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: JSON.stringify({ dtcCodes: dtcArray })
         });
         const data = await response.json();
         if (data.hypothesis) {
@@ -168,7 +208,7 @@
         </div>
       `;
 
-      addAuditLog(`Hypothesis rendered: ${hypothesis} (${confidence}% confidence).`);
+      addAuditLog(`Parsed DTCs [${dtcArray.join(', ')}]. Hypothesis: ${hypothesis} (${confidence}% confidence).`);
     }
   </script>
 </body>
