@@ -1,59 +1,52 @@
+const CLIENT_ID = 'client_01M005QGMRN80T4W3Q6MCFEK14';
+const REDIRECT_URI = 'https://garage-agent.gnfcw9w5rk.workers.dev/auth/callback';
+
 export default {
   async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+
+    // Standard CORS headers
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: corsHeaders });
     }
 
-    const url = new URL(request.url);
-
-    // Endpoint 1: Lock / Unlock State Control
-    if (url.pathname === '/api/command' && request.method === 'POST') {
-      const { command, vin } = await request.json();
-      const newStatus = command.toUpperCase() === 'LOCK' ? 'LOCKED' : 'UNLOCKED';
+    // 1. Live Smartcar OAuth Redirect Route
+    if (url.pathname === '/api/auth' || url.pathname === '/auth') {
+      const scope = 'read_vehicle_info read_diagnostics control_security';
+      const authUrl = `https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(scope)}&mode=live`;
       
-      return new Response(
-        JSON.stringify({
-          success: true,
-          vin: vin || '1FA6P8CF0H1XXXXXX',
-          doorState: newStatus,
-          timestamp: new Date().toISOString(),
-          log: `Cellular ${command.toUpperCase()} command executed via Cloudflare Edge.`
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return Response.redirect(authUrl, 302);
     }
 
-    // Endpoint 2: Real-time DTC Diagnostics Evaluator
-    if (url.pathname === '/api/diagnose' && request.method === 'POST') {
-      const { dtcCodes } = await request.json();
-      
-      let hypothesis = "Normal Engine Operational Status";
-      let confidence = 95;
-      let action = "No repair required. System operating within nominal values.";
-
-      if (dtcCodes && (dtcCodes.includes('P0171') || dtcCodes.includes('P0174'))) {
-        hypothesis = "Intake Manifold Gasket Failure";
-        confidence = 88;
-        action = "Measure intake port vacuum level using a physical gauge to isolate gasket vs MAF sensor failure.";
+    // 2. Auth Callback Route
+    if (url.pathname === '/auth/callback') {
+      const code = url.searchParams.get('code');
+      if (code) {
+        return new Response(`
+          <html>
+            <body style="background:#0b132b;color:#fff;font-family:sans-serif;text-align:center;padding:40px;">
+              <h2>✅ Vehicle Authorized Successfully!</h2>
+              <p>Authorization Code Received. You can now return to the app.</p>
+              <a href="https://ct-gifted1.github.io" style="color:#00d2ff;font-weight:bold;">Return to Garage Agent App</a>
+            </body>
+          </html>
+        `, { headers: { 'Content-Type': 'text/html' } });
       }
-
-      return new Response(
-        JSON.stringify({
-          hypothesis,
-          confidence,
-          action,
-          evaluatedAt: new Date().toISOString()
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response("Authorization failed or no code provided.", { status: 400 });
     }
 
-    return new Response('Garage Agent API Operational', { status: 200, headers: corsHeaders });
+    // 3. Fallback for Diagnostic API requests
+    return new Response(JSON.stringify({
+      status: "online",
+      message: "Garage Agent Worker Live"
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   }
 };
