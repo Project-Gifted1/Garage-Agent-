@@ -28,7 +28,6 @@
     .btn-toggle { background: #118ab2; }
     .timeline { display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 0.75rem; }
     .timeline-entry { padding-bottom: 6px; border-bottom: 1px dashed #3a506b; color: #8d99ae; }
-    .highlight { color: #00d2ff; }
     .hypo-card { background: #0b132b; border-left: 3px solid #00d2ff; padding: 10px; margin-top: 8px; border-radius: 4px; }
     .hypo-desc { font-size: 0.75rem; color: #8d99ae; margin-top: 4px; }
   </style>
@@ -66,8 +65,8 @@
     <div class="card">
       <h3 style="font-size: 0.95rem; margin-bottom: 12px;">📋 Telemetry & Commands</h3>
       
-      <!-- DIRECT SMARTCAR OAUTH REDIRECT BUTTON -->
-      <button class="btn-connect" onclick="window.location.href='https://garage-agent.gnfcw9w5rk.workers.dev/auth'">
+      <!-- DIRECT SMARTCAR OAUTH URL -->
+      <button class="btn-connect" onclick="window.location.href='https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=client_01M005QGMRN80T4W3Q6MCFEK14&redirect_uri=https%3A%2F%2Fgarage-agent.gnfcw9w5rk.workers.dev%2Fauth%2Fcallback&scope=read_vehicle_info%20read_diagnostics%20control_security&mode=live'">
         🚘 Connect Real Vehicle (Smartcar)
       </button>
 
