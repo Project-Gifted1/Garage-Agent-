@@ -1,3 +1,4 @@
+// Live deploy trigger
 const CLIENT_ID = 'client_01M005QGMRN80T4W3Q6MCFEK14';
 const REDIRECT_URI = 'https://garage-agent.gnfcw9w5rk.workers.dev/auth/callback';
 
@@ -33,7 +34,7 @@ export default {
             <body style="background:#0b132b;color:#fff;font-family:sans-serif;text-align:center;padding:40px;">
               <h2>✅ Vehicle Authorized Successfully!</h2>
               <p>Authorization Code Received. You can now return to the app.</p>
-              <a href="https://ct-gifted1.github.io" style="color:#00d2ff;font-weight:bold;">Return to Garage Agent App</a>
+              <a href="https://project-gifted1.github.io" style="color:#00d2ff;font-weight:bold;">Return to Garage Agent App</a>
             </body>
           </html>
         `, { headers: { 'Content-Type': 'text/html' } });
