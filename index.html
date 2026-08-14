@@ -8,10 +8,22 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: #0b132b; color: #ffffff; padding: 16px; line-height: 1.5; }
     .container { width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1c2541; padding-bottom: 12px; }
+    
+    /* Header & Menu Styling */
+    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #1c2541; padding-bottom: 12px; position: relative; }
     .brand { font-size: 1.2rem; font-weight: bold; color: #00d2ff; }
-    .subbrand { font-size: 0.75rem; color: #8d99ae; }
-    .badge-fsm { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid #00d2ff; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; font-weight: bold; }
+    .subbrand { font-size: 0.72rem; color: #8d99ae; margin-top: 2px; }
+    
+    .menu-container { position: relative; }
+    .menu-btn { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid #00d2ff; border-radius: 6px; padding: 6px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .menu-dropdown { display: none; position: absolute; right: 0; top: 36px; background: #1c2541; border: 1px solid #3a506b; border-radius: 8px; width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 100; flex-direction: column; overflow: hidden; }
+    .menu-dropdown.active { display: flex; }
+    .menu-item { padding: 10px 12px; font-size: 0.8rem; color: #ffffff; text-decoration: none; border-bottom: 1px solid #2a3b5c; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:hover { background: #2a3b5c; }
+    .menu-item.disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* UI Grid & Cards */
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .card { background: #1c2541; border: 1px solid #3a506b; border-radius: 10px; padding: 14px; }
     .card-sm { background: #1c2541; border: 1px solid #3a506b; border-radius: 8px; padding: 10px; text-align: center; }
@@ -36,13 +48,29 @@
 
   <div class="container">
     
-    <!-- Header Section -->
+    <!-- Header Section with Interactive Menu -->
     <div class="header">
       <div>
         <div class="brand">🔧 Garage Agent™</div>
         <div class="subbrand">Project_Gifted1™ Autonomous AI Diagnostics</div>
       </div>
-      <div class="badge-fsm">FSM Active</div>
+      
+      <div class="menu-container">
+        <button class="menu-btn" onclick="toggleMenu()">
+          ⚙️ Options ▾
+        </button>
+        <div class="menu-dropdown" id="dropdown-menu">
+          <div class="menu-item" onclick="toggleMenu(); alert('FSM Diagnostics Active');">
+            🟢 FSM Status: Active
+          </div>
+          <div class="menu-item disabled" title="Coming Soon">
+            🏎️ ECU Remapping (Beta)
+          </div>
+          <div class="menu-item disabled" title="Coming Soon">
+            📺 Repair Video Guides
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Live Telemetry Grid -->
@@ -65,7 +93,6 @@
     <div class="card">
       <h3 style="font-size: 0.95rem; margin-bottom: 12px;">📋 Telemetry & Commands</h3>
       
-      <!-- UPDATED BUTTON TEXT HERE -->
       <button class="btn-connect" onclick="window.location.href='https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=b29a00b0-21d3-46d3-b942-6be8e474ce04&redirect_uri=https%3A%2F%2Fgarage-agent.gnfcw9w5rk.workers.dev%2Fauth%2Fcallback&scope=read_vehicle_info%20read_diagnostics%20control_security&mode=test'">
         🚘 Connect Vehicle (Smartcar)
       </button>
@@ -105,5 +132,11 @@
   </div>
 
   <script src="app.js"></script>
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('dropdown-menu');
+      menu.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>
