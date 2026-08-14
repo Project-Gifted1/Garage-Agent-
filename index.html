@@ -93,8 +93,8 @@
     <div class="card">
       <h3 style="font-size: 0.95rem; margin-bottom: 12px;">📋 Telemetry & Commands</h3>
       
-      <!-- DIRECT REDIRECT BACK TO GITHUB PAGES TO AVOID CLOUDFLARE DASHBOARD -->
-      <button class="btn-connect" onclick="window.location.href='https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=b29a00b0-21d3-46d3-b942-6be8e474ce04&redirect_uri=https%3A%2F%2Fct-gifted1.github.io%2F&scope=read_vehicle_info%20read_diagnostics%20control_security&mode=test'">
+      <!-- AUTHORIZED CLOUDFLARE CALLBACK URL -->
+      <button class="btn-connect" onclick="window.location.href='https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=b29a00b0-21d3-46d3-b942-6be8e474ce04&redirect_uri=https%3A%2F%2Fgarage-agent.gnfcw9w5rk.workers.dev%2Fauth%2Fcallback&scope=read_vehicle_info%20read_diagnostics%20control_security&mode=test'">
         🚘 Connect Vehicle (Smartcar)
       </button>
 
@@ -138,16 +138,6 @@
       const menu = document.getElementById('dropdown-menu');
       menu.classList.toggle('active');
     }
-
-    // Auto-detect when returning from Smartcar connect flow
-    window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('code')) {
-        const timeline = document.getElementById('timeline');
-        timeline.innerHTML += `<div class="timeline-entry" style="color: #4edd85;">[OAUTH SUCCESS] Authorization code received from Smartcar.</div>`;
-        timeline.innerHTML += `<div class="timeline-entry" style="color: #00d2ff;">[TELEMETRY] Simulated vehicle connected cleanly.</div>`;
-      }
-    });
   </script>
 </body>
 </html>
