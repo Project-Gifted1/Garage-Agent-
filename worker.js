@@ -12,13 +12,12 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // Smartcar Application ID for Connect Flow
     const clientId = env.SMARTCAR_CLIENT_ID || 'b29a00b0-21d3-46d3-b942-6be8e474ce04';
     const redirectUri = env.SMARTCAR_REDIRECT_URI || 'https://garage-agent-api.gnfcw9w5rk.workers.dev/oauth/callback';
 
-    // 1. Smartcar Login Route
+    // 1. Smartcar Login Route - Mode set to live
     if (url.pathname === '/login') {
-      const authUrl = `https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read_vehicle_info+read_odometer+read_location&mode=test`;
+      const authUrl = `https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read_vehicle_info+read_odometer+read_location&mode=live`;
       return Response.redirect(authUrl, 302);
     }
 
