@@ -1,153 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Garage Agent™ | Autonomous Diagnostics</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Garage Agent™ | Project_Gifted1™ Autonomous AI Diagnostics</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: #0b132b; color: #ffffff; padding: 16px; line-height: 1.5; }
-    .container { width: 100%; max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-    
-    /* Header & Menu Styling */
-    .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #1c2541; padding-bottom: 12px; position: relative; }
-    .brand { font-size: 1.2rem; font-weight: bold; color: #00d2ff; }
-    .subbrand { font-size: 0.72rem; color: #8d99ae; margin-top: 2px; }
-    
-    .menu-container { position: relative; }
-    .menu-btn { background: rgba(0, 210, 255, 0.1); color: #00d2ff; border: 1px solid #00d2ff; border-radius: 6px; padding: 6px 10px; font-size: 0.75rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-    .menu-dropdown { display: none; position: absolute; right: 0; top: 36px; background: #1c2541; border: 1px solid #3a506b; border-radius: 8px; width: 180px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 100; flex-direction: column; overflow: hidden; }
-    .menu-dropdown.active { display: flex; }
-    .menu-item { padding: 10px 12px; font-size: 0.8rem; color: #ffffff; text-decoration: none; border-bottom: 1px solid #2a3b5c; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-    .menu-item:last-child { border-bottom: none; }
-    .menu-item:hover { background: #2a3b5c; }
-    .menu-item.disabled { opacity: 0.5; cursor: not-allowed; }
+    :root {
+      --bg-dark: #0a0f1d;
+      --card-bg: #141c2e;
+      --card-border: #232f48;
+      --accent-blue: #00d2ff;
+      --accent-purple: #6c5ce7;
+      --text-main: #ffffff;
+      --text-muted: #8c9ba5;
+      --status-green: #00e676;
+    }
 
-    /* UI Grid & Cards */
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .card { background: #1c2541; border: 1px solid #3a506b; border-radius: 10px; padding: 14px; }
-    .card-sm { background: #1c2541; border: 1px solid #3a506b; border-radius: 8px; padding: 10px; text-align: center; }
-    .telem-label { font-size: 0.65rem; color: #8d99ae; text-transform: uppercase; margin-bottom: 4px; }
-    .telem-value { font-size: 1rem; font-weight: bold; }
-    .input-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-    label { font-size: 0.75rem; color: #8d99ae; }
-    input { background: #0b132b; border: 1px solid #3a506b; color: #fff; padding: 10px; border-radius: 6px; font-size: 0.9rem; }
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    button { padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; color: white; font-size: 0.85rem; }
-    button:active { opacity: 0.8; }
-    .btn-connect { background: #6c5ce7; width: 100%; margin-bottom: 12px; }
-    .btn-agent { background: #0081a7; }
-    .btn-toggle { background: #118ab2; }
-    .timeline { display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 0.75rem; }
-    .timeline-entry { padding-bottom: 6px; border-bottom: 1px dashed #3a506b; color: #8d99ae; }
-    .hypo-card { background: #0b132b; border-left: 3px solid #00d2ff; padding: 10px; margin-top: 8px; border-radius: 4px; }
-    .hypo-desc { font-size: 0.75rem; color: #8d99ae; margin-top: 4px; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .brand-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin: 0;
+    }
+
+    .brand-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .btn-options {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--status-green);
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .panel-header {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-connect {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, #7c4dff, #651fff);
+      color: white;
+      text-align: center;
+      padding: 12px 0;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      box-sizing: border-box;
+    }
+
+    .input-group {
+      margin-bottom: 12px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .input-field {
+      width: 100%;
+      background: #0d1322;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-family: monospace;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .btn-action {
+      background: #0091ea;
+      border: none;
+      color: white;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-secondary {
+      background: #00838f;
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
-    
-    <!-- Header Section with Interactive Menu -->
-    <div class="header">
+    <header>
       <div>
-        <div class="brand">🔧 Garage Agent™</div>
-        <div class="subbrand">Project_Gifted1™ Autonomous AI Diagnostics</div>
+        <h1 class="brand-title">🔧 Garage Agent™</h1>
+        <div class="brand-sub">Project_Gifted1™ Autonomous AI Diagnostics</div>
       </div>
-      
-      <div class="menu-container">
-        <button class="menu-btn" onclick="toggleMenu()">
-          ⚙️ Options ▾
-        </button>
-        <div class="menu-dropdown" id="dropdown-menu">
-          <div class="menu-item" onclick="toggleMenu(); alert('FSM Diagnostics Active');">
-            🟢 FSM Status: Active
-          </div>
-          <div class="menu-item disabled" title="Coming Soon">
-            🏎️ ECU Remapping (Beta)
-          </div>
-          <div class="menu-item disabled" title="Coming Soon">
-            📺 Repair Video Guides
-          </div>
-        </div>
+      <button class="btn-options">⚙️ Options ▾</button>
+    </header>
+
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Battery</div>
+        <div class="metric-value">12.4 V</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Door State</div>
+        <div class="metric-value">UNLOCKED</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Fuel Press.</div>
+        <div class="metric-value">3.9 BAR</div>
       </div>
     </div>
 
-    <!-- Live Telemetry Grid -->
-    <div class="grid-3">
-      <div class="card-sm">
-        <div class="telem-label">Battery</div>
-        <div class="telem-value" style="color: #4edd85;">12.4 V</div>
-      </div>
-      <div class="card-sm">
-        <div class="telem-label">Door State</div>
-        <div class="telem-value" style="color: #ff5964;">LOCKED</div>
-      </div>
-      <div class="card-sm">
-        <div class="telem-label">Fuel Press.</div>
-        <div class="telem-value" style="color: #4edd85;">3.9 BAR</div>
-      </div>
-    </div>
-
-    <!-- Telemetry & Commands Card -->
-    <div class="card">
-      <h3 style="font-size: 0.95rem; margin-bottom: 12px;">📋 Telemetry & Commands</h3>
+    <div class="panel">
+      <div class="panel-header">📋 Telemetry & Commands</div>
       
-      <!-- UPDATED CORRECT PROJECT-GIFTED1 REDIRECT BUTTON -->
-      <button class="btn-connect" onclick="window.location.href='https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=b29a00b0-21d3-46d3-b942-6be8e474ce04&redirect_uri=https%3A%2F%2Fproject-gifted1.github.io%2FGarage-Agent-%2F&scope=read_vehicle_info%20read_diagnostics%20control_security&mode=test'">
-        🚘 Connect Vehicle (Smartcar)
-      </button>
+      <!-- Updated Live Smartcar Login Endpoint -->
+      <a href="https://garage-agent-api.gnfcw9w5rk.workers.dev/login" class="btn-connect">
+        🚗 Connect Vehicle (Smartcar)
+      </a>
 
       <div class="input-group">
         <label>VIN / Vehicle ID</label>
-        <input type="text" id="vin-input" value="1FA6P8CF0H1XXXXXX" readonly>
+        <input type="text" class="input-field" value="1FA6P8CF0H1XXXXXX" readonly />
       </div>
 
       <div class="input-group">
         <label>Active DTC Codes</label>
-        <input type="text" id="dtc-input" value="P0171, P0174">
+        <input type="text" class="input-field" value="P0171, P0174" readonly />
       </div>
 
-      <div class="btn-grid">
-        <button class="btn-agent" onclick="runAgents()">🚀 Run Parallel Agents</button>
-        <button class="btn-toggle" onclick="toggleLock()">🔒 Lock / Unlock</button>
-      </div>
-    </div>
-
-    <!-- Diagnostic Hypotheses Output -->
-    <div class="card">
-      <h3 style="font-size: 0.95rem; margin-bottom: 8px;">🎯 Diagnostic Hypotheses</h3>
-      <div id="hypotheses-container">
-        <p style="font-size: 0.8rem; color: #8d99ae; text-align: center; padding: 12px;">Awaiting telemetry trigger...</p>
+      <div class="actions-grid">
+        <button class="btn-action">🚀 Run Parallel Agents</button>
+        <button class="btn-action btn-secondary">🔒 Lock / Unlock</button>
       </div>
     </div>
-
-    <!-- Agent Audit Timeline -->
-    <div class="card">
-      <h3 style="font-size: 0.95rem; margin-bottom: 12px;">📜 Agent Audit Timeline</h3>
-      <div class="timeline" id="timeline">
-        <div class="timeline-entry">[INIT] Telematics listener standby mode active.</div>
-      </div>
-    </div>
-
   </div>
 
-  <script src="app.js"></script>
-  <script>
-    function toggleMenu() {
-      const menu = document.getElementById('dropdown-menu');
-      menu.classList.toggle('active');
-    }
-
-    // Listens for redirect response from Smartcar
-    window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('code')) {
-        const timeline = document.getElementById('timeline');
-        timeline.innerHTML += `<div class="timeline-entry" style="color: #4edd85;">[OAUTH SUCCESS] Smartcar auth code captured.</div>`;
-        timeline.innerHTML += `<div class="timeline-entry" style="color: #00d2ff;">[TELEMETRY] Simulated vehicle connected.</div>`;
-      }
-    });
-  </script>
 </body>
 </html>
