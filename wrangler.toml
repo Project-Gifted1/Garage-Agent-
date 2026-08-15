@@ -3,5 +3,5 @@ main = "worker.js"
 compatibility_date = "2024-01-01"
 
 [vars]
-SMARTCAR_CLIENT_ID = "client_01M005QGMRN80T4W3Q6MCFEK14"
+SMARTCAR_CLIENT_ID = "b29a00b0-21d3-46d3-b942-6be8e474ce04"
 SMARTCAR_REDIRECT_URI = "https://garage-agent-api.gnfcw9w5rk.workers.dev/oauth/callback"
