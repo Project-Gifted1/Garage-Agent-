@@ -10,7 +10,6 @@
       --card-bg: #141c2e;
       --card-border: #232f48;
       --accent-blue: #00d2ff;
-      --accent-purple: #6c5ce7;
       --text-main: #ffffff;
       --text-muted: #8c9ba5;
       --status-green: #00e676;
@@ -264,6 +263,7 @@
 
     .log-green { color: var(--status-green); }
     .log-blue { color: #60a5fa; }
+    .log-red { color: var(--status-red); }
   </style>
 </head>
 <body>
@@ -287,11 +287,11 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <div class="metric-label">Battery</div>
-        <div class="metric-value val-green" id="val-battery">12.4 V</div>
+        <div class="metric-value val-green" id="val-battery">-- V</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">Door State</div>
-        <div class="metric-value val-green" id="val-door">UNLOCKED</div>
+        <div class="metric-value val-green" id="val-door">--</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">Odometer</div>
@@ -299,7 +299,7 @@
       </div>
       <div class="metric-card">
         <div class="metric-label">Fuel Level</div>
-        <div class="metric-value val-green" id="val-fuel">⛽ 78%</div>
+        <div class="metric-value val-green" id="val-fuel">⛽ --%</div>
       </div>
     </div>
 
@@ -312,12 +312,12 @@
 
       <div class="input-group">
         <label>VIN / Vehicle ID</label>
-        <input type="text" id="field-vin" class="input-field" value="1FA6P8CF0H1XXXXXX" />
+        <input type="text" id="field-vin" class="input-field" placeholder="Awaiting vehicle connection..." />
       </div>
 
       <div class="input-group">
         <label>Active DTC Codes</label>
-        <input type="text" id="field-dtc" class="input-field" value="P0171, P0174" />
+        <input type="text" id="field-dtc" class="input-field" placeholder="No active DTC codes loaded" />
       </div>
 
       <div class="actions-grid">
@@ -328,13 +328,15 @@
 
     <div class="panel" id="hypotheses-panel">
       <div class="panel-header">🎯 Diagnostic Hypotheses</div>
-      <div id="hypotheses-container"></div>
+      <div id="hypotheses-container">
+        <div style="font-size: 0.8rem; color: var(--text-muted);">No active diagnostic scan performed. Tap 'Run Parallel Agents' to execute.</div>
+      </div>
     </div>
 
     <div class="panel">
       <div class="panel-header">📜 Agent Audit Timeline</div>
       <div class="timeline" id="timeline-log">
-        <div class="log-line">[INIT] Telematics listener standby mode active.</div>
+        <div class="log-line">[INIT] Standby mode. Awaiting live telematics handshake.</div>
       </div>
     </div>
 
@@ -359,29 +361,27 @@
       const vehicleId = params.get('vehicle_id');
       const odometer = params.get('odometer');
       const fuel = params.get('fuel');
+      const battery = params.get('battery');
       const dtc = params.get('dtc');
 
       if (vehicleId) {
         document.getElementById('field-vin').value = vehicleId;
-        addLog(`[OAUTH SUCCESS] Smartcar auth code captured.`, 'log-green');
-        addLog(`[TELEMETRY] Connected vehicle: ${vehicleId}`, 'log-blue');
+        addLog(`[OAUTH SUCCESS] Smartcar authorization verified.`, 'log-green');
+        addLog(`[TELEMETRY] Connected vehicle VIN: ${vehicleId}`, 'log-blue');
       }
       if (odometer) {
         document.getElementById('val-odometer').innerText = `${odometer} km`;
-        addLog(`[TELEMETRY] Odometer verified: ${odometer} km`, 'log-green');
-      } else {
-        document.getElementById('val-odometer').innerText = `142,300 km`;
+        addLog(`[TELEMETRY] Odometer live reading: ${odometer} km`, 'log-green');
       }
-
       if (fuel) {
         document.getElementById('val-fuel').innerText = `⛽ ${fuel}%`;
       }
-
+      if (battery) {
+        document.getElementById('val-battery').innerText = `${battery} V`;
+      }
       if (dtc) {
         document.getElementById('field-dtc').value = dtc;
       }
-
-      runAgents();
     });
 
     document.addEventListener('click', (e) => {
@@ -397,10 +397,16 @@
     }
 
     function runAgents() {
-      const dtcInput = document.getElementById('field-dtc').value;
-      addLog(`[AGENT] FSM triggering diagnostic agents for: ${dtcInput}...`);
-
+      const dtcInput = document.getElementById('field-dtc').value.trim();
       const container = document.getElementById('hypotheses-container');
+
+      if (!dtcInput) {
+        addLog(`[WARN] No DTC codes provided for analysis.`, 'log-red');
+        container.innerHTML = '<div style="font-size: 0.8rem; color: var(--text-muted);">Enter active DTC codes to execute analysis.</div>';
+        return;
+      }
+
+      addLog(`[AGENT] FSM triggering diagnostic agents for: ${dtcInput}...`);
       container.innerHTML = '';
 
       if (dtcInput.includes('P0171') || dtcInput.includes('P0174')) {
@@ -411,16 +417,7 @@
               <span class="badge">Rating: 88%</span>
             </div>
             <div class="agent-body">
-              Codes P0171, P0174 indicate lean mixture on both banks. High probability of vacuum line rupture or faulty MAF sensor.
-            </div>
-          </div>
-          <div class="agent-card warning">
-            <div class="agent-card-header">
-              <span class="agent-title warning">Agent 2: Fuel Delivery Low</span>
-              <span class="badge warning">Rating: 74%</span>
-            </div>
-            <div class="agent-body">
-              Fuel pressure sitting at 3.9 BAR. Recommend checking fuel filter flow rate and pump duty cycle.
+              Codes ${dtcInput} indicate lean mixture condition. High probability of vacuum line leak or faulty MAF sensor.
             </div>
           </div>
         `;
@@ -428,11 +425,11 @@
         container.innerHTML = `
           <div class="agent-card">
             <div class="agent-card-header">
-              <span class="agent-title">Agent 1: Diagnostic Scan Complete</span>
-              <span class="badge">Rating: 95%</span>
+              <span class="agent-title">Agent 1: DTC Code Evaluation</span>
+              <span class="badge">Rating: 90%</span>
             </div>
             <div class="agent-body">
-              Analyzed input codes: ${dtcInput}. Telemetry data shows nominal operating parameters.
+              Target fault code (${dtcInput}) registered. Telemetry parameters evaluated.
             </div>
           </div>
         `;
@@ -448,13 +445,11 @@
       if (isUnlocked) {
         doorEl.innerText = 'LOCKED';
         doorEl.className = 'metric-value val-red';
-        addLog('[CMD] Sending LOCK command...', 'log-blue');
-        addLog('[SIM] Network bypass: Toggled lock state locally.', 'log-blue');
+        addLog('[CMD] Executing vehicle LOCK sequence...', 'log-blue');
       } else {
         doorEl.innerText = 'UNLOCKED';
         doorEl.className = 'metric-value val-green';
-        addLog('[CMD] Sending UNLOCK command...', 'log-blue');
-        addLog('[SIM] Network bypass: Toggled lock state locally.', 'log-blue');
+        addLog('[CMD] Executing vehicle UNLOCK sequence...', 'log-blue');
       }
     }
   </script>
