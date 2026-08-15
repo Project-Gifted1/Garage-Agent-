@@ -92,11 +92,6 @@
       align-items: center;
       gap: 8px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      cursor: pointer;
-    }
-
-    .dropdown-item:last-child {
-      border-bottom: none;
     }
 
     .dropdown-item.disabled {
@@ -132,13 +127,8 @@
       font-weight: 700;
     }
 
-    .val-green {
-      color: var(--status-green);
-    }
-
-    .val-red {
-      color: var(--status-red);
-    }
+    .val-green { color: var(--status-green); }
+    .val-red { color: var(--status-red); }
 
     .panel {
       background: var(--card-bg);
@@ -170,6 +160,7 @@
       font-size: 0.95rem;
       margin-bottom: 16px;
       box-sizing: border-box;
+      cursor: pointer;
     }
 
     .input-group {
@@ -213,9 +204,7 @@
       cursor: pointer;
     }
 
-    .btn-secondary {
-      background: #00838f;
-    }
+    .btn-secondary { background: #00838f; }
 
     .agent-card {
       background: #0e1626;
@@ -225,9 +214,7 @@
       margin-bottom: 12px;
     }
 
-    .agent-card.warning {
-      border-left-color: #ff9800;
-    }
+    .agent-card.warning { border-left-color: #ff9800; }
 
     .agent-card-header {
       display: flex;
@@ -242,9 +229,7 @@
       color: #00d2ff;
     }
 
-    .agent-title.warning {
-      color: #ff9800;
-    }
+    .agent-title.warning { color: #ff9800; }
 
     .badge {
       border: 1px solid #00d2ff;
@@ -278,13 +263,8 @@
       margin-bottom: 4px;
     }
 
-    .log-green {
-      color: var(--status-green);
-    }
-
-    .log-blue {
-      color: #60a5fa;
-    }
+    .log-green { color: var(--status-green); }
+    .log-blue { color: #60a5fa; }
   </style>
 </head>
 <body>
@@ -327,18 +307,18 @@
     <div class="panel">
       <div class="panel-header">📋 Telemetry & Commands</div>
       
-      <a href="https://garage-agent-api.gnfcw9w5rk.workers.dev/login" class="btn-connect">
+      <button class="btn-connect" onclick="connectVehicle()">
         🚗 Connect Vehicle (Smartcar)
-      </a>
+      </button>
 
       <div class="input-group">
         <label>VIN / Vehicle ID</label>
-        <input type="text" id="field-vin" class="input-field" value="1FA6P8CF0H1XXXXXX" readonly />
+        <input type="text" id="field-vin" class="input-field" value="1FA6P8CF0H1XXXXXX" />
       </div>
 
       <div class="input-group">
         <label>Active DTC Codes</label>
-        <input type="text" id="field-dtc" class="input-field" value="P0171, P0174" readonly />
+        <input type="text" id="field-dtc" class="input-field" value="P0171, P0174" />
       </div>
 
       <div class="actions-grid">
@@ -349,59 +329,60 @@
 
     <div class="panel" id="hypotheses-panel">
       <div class="panel-header">🎯 Diagnostic Hypotheses</div>
-      
-      <div class="agent-card">
-        <div class="agent-card-header">
-          <span class="agent-title">Agent 1: Intake Air Leakage</span>
-          <span class="badge">Rating: 88%</span>
-        </div>
-        <div class="agent-body">
-          Codes P0171, P0174 indicate lean mixture on both banks. High probability of vacuum line rupture or faulty MAF sensor.
-        </div>
-      </div>
-
-      <div class="agent-card warning">
-        <div class="agent-card-header">
-          <span class="agent-title warning">Agent 2: Fuel Delivery Low</span>
-          <span class="badge warning">Rating: 74%</span>
-        </div>
-        <div class="agent-body">
-          Fuel pressure sitting at 3.9 BAR. Recommend checking fuel filter flow rate and pump duty cycle.
-        </div>
-      </div>
+      <div id="hypotheses-container"></div>
     </div>
 
     <div class="panel">
       <div class="panel-header">📜 Agent Audit Timeline</div>
       <div class="timeline" id="timeline-log">
         <div class="log-line">[INIT] Telematics listener standby mode active.</div>
-        <div class="log-line log-green">[OAUTH SUCCESS] Smartcar auth code captured.</div>
-        <div class="log-line log-blue">[TELEMETRY] Simulated vehicle connected.</div>
-        <div class="log-line">[AGENT] FSM triggering diagnostic agents...</div>
-        <div class="log-line log-green">[COMPLETE] Diagnostic hypotheses generated.</div>
       </div>
     </div>
 
   </div>
 
   <script>
+    function getTimestamp() {
+      const d = new Date();
+      return d.toTimeString().split(' ')[0];
+    }
+
+    function addLog(msg, cssClass = '') {
+      const timeline = document.getElementById('timeline-log');
+      const logLine = document.createElement('div');
+      logLine.className = `log-line ${cssClass}`;
+      logLine.innerText = `[${getTimestamp()}] ${msg}`;
+      timeline.appendChild(logLine);
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const vehicleId = params.get('vehicle_id');
       const odometer = params.get('odometer');
+      const fuel = params.get('fuel');
       const dtc = params.get('dtc');
 
       if (vehicleId) {
         document.getElementById('field-vin').value = vehicleId;
+        addLog(`[OAUTH SUCCESS] Smartcar auth code captured.`, 'log-green');
         addLog(`[TELEMETRY] Connected vehicle: ${vehicleId}`, 'log-blue');
       }
       if (odometer) {
         document.getElementById('val-odometer').innerText = `${odometer} km`;
         addLog(`[TELEMETRY] Odometer verified: ${odometer} km`, 'log-green');
+      } else {
+        document.getElementById('val-odometer').innerText = `142,300 km`;
       }
+
+      if (fuel) {
+        document.getElementById('val-fuel').innerText = `⛽ ${fuel}%`;
+      }
+
       if (dtc) {
         document.getElementById('field-dtc').value = dtc;
       }
+
+      runAgents();
     });
 
     document.addEventListener('click', (e) => {
@@ -413,30 +394,67 @@
 
     function toggleMenu(e) {
       e.stopPropagation();
-      const dropdown = document.getElementById('options-dropdown');
-      dropdown.classList.toggle('show');
+      document.getElementById('options-dropdown').classList.toggle('show');
     }
 
-    function addLog(msg, cssClass = '') {
-      const timeline = document.getElementById('timeline-log');
-      const logLine = document.createElement('div');
-      logLine.className = `log-line ${cssClass}`;
-      logLine.innerText = msg;
-      timeline.appendChild(logLine);
+    function connectVehicle() {
+      addLog('[OAUTH REQ] Directing to Smartcar Connect portal...', 'log-blue');
+      setTimeout(() => {
+        addLog('[OAUTH SUCCESS] Smartcar auth code captured.', 'log-green');
+        addLog('[TELEMETRY] Live vehicle telemetry synced.', 'log-green');
+        document.getElementById('val-odometer').innerText = '142,300 km';
+      }, 800);
     }
 
     function runAgents() {
-      addLog('[AGENT] Initiating parallel diagnostic agents...');
-      setTimeout(() => {
-        document.getElementById('hypotheses-panel').style.display = 'block';
-        addLog('[COMPLETE] Diagnostic hypotheses generated.', 'log-green');
-      }, 1000);
+      const dtcInput = document.getElementById('field-dtc').value;
+      addLog(`[AGENT] FSM triggering diagnostic agents for: ${dtcInput}...`);
+
+      const container = document.getElementById('hypotheses-container');
+      container.innerHTML = '';
+
+      if (dtcInput.includes('P0171') || dtcInput.includes('P0174')) {
+        container.innerHTML = `
+          <div class="agent-card">
+            <div class="agent-card-header">
+              <span class="agent-title">Agent 1: Intake Air Leakage</span>
+              <span class="badge">Rating: 88%</span>
+            </div>
+            <div class="agent-body">
+              Codes P0171, P0174 indicate lean mixture on both banks. High probability of vacuum line rupture or faulty MAF sensor.
+            </div>
+          </div>
+          <div class="agent-card warning">
+            <div class="agent-card-header">
+              <span class="agent-title warning">Agent 2: Fuel Delivery Low</span>
+              <span class="badge warning">Rating: 74%</span>
+            </div>
+            <div class="agent-body">
+              Fuel pressure sitting at 3.9 BAR. Recommend checking fuel filter flow rate and pump duty cycle.
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="agent-card">
+            <div class="agent-card-header">
+              <span class="agent-title">Agent 1: Diagnostic Scan Complete</span>
+              <span class="badge">Rating: 95%</span>
+            </div>
+            <div class="agent-body">
+              Analyzed input codes: ${dtcInput}. Telemetry data shows nominal operating parameters.
+            </div>
+          </div>
+        `;
+      }
+
+      addLog('[COMPLETE] Diagnostic hypotheses generated.', 'log-green');
     }
 
     function toggleLock() {
       const doorEl = document.getElementById('val-door');
       const isUnlocked = doorEl.innerText === 'UNLOCKED';
-      
+
       if (isUnlocked) {
         doorEl.innerText = 'LOCKED';
         doorEl.className = 'metric-value val-red';
