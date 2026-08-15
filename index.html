@@ -160,7 +160,6 @@
       font-size: 0.95rem;
       margin-bottom: 16px;
       box-sizing: border-box;
-      cursor: pointer;
     }
 
     .input-group {
@@ -307,9 +306,9 @@
     <div class="panel">
       <div class="panel-header">📋 Telemetry & Commands</div>
       
-      <button class="btn-connect" onclick="connectVehicle()">
+      <a href="https://garage-agent-api.gnfcw9w5rk.workers.dev/login" class="btn-connect">
         🚗 Connect Vehicle (Smartcar)
-      </button>
+      </a>
 
       <div class="input-group">
         <label>VIN / Vehicle ID</label>
@@ -395,15 +394,6 @@
     function toggleMenu(e) {
       e.stopPropagation();
       document.getElementById('options-dropdown').classList.toggle('show');
-    }
-
-    function connectVehicle() {
-      addLog('[OAUTH REQ] Directing to Smartcar Connect portal...', 'log-blue');
-      setTimeout(() => {
-        addLog('[OAUTH SUCCESS] Smartcar auth code captured.', 'log-green');
-        addLog('[TELEMETRY] Live vehicle telemetry synced.', 'log-green');
-        document.getElementById('val-odometer').innerText = '142,300 km';
-      }, 800);
     }
 
     function runAgents() {
