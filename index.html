@@ -14,6 +14,7 @@
       --text-main: #ffffff;
       --text-muted: #8c9ba5;
       --status-green: #00e676;
+      --status-red: #ff5252;
     }
 
     body {
@@ -64,7 +65,6 @@
       cursor: pointer;
     }
 
-    /* Dropdown Menu Overlay */
     .dropdown-menu {
       display: none;
       position: absolute;
@@ -130,7 +130,14 @@
     .metric-value {
       font-size: 1rem;
       font-weight: 700;
+    }
+
+    .val-green {
       color: var(--status-green);
+    }
+
+    .val-red {
+      color: var(--status-red);
     }
 
     .panel {
@@ -210,15 +217,76 @@
       background: #00838f;
     }
 
-    .status-log {
-      margin-top: 12px;
-      padding: 10px;
-      background: #080d1a;
+    /* Diagnostic Cards Styling */
+    .agent-card {
+      background: #0e1626;
+      border-left: 4px solid #00d2ff;
       border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .agent-card.warning {
+      border-left-color: #ff9800;
+    }
+
+    .agent-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .agent-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #00d2ff;
+    }
+
+    .agent-title.warning {
+      color: #ff9800;
+    }
+
+    .badge {
+      border: 1px solid #00d2ff;
+      color: #00d2ff;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+
+    }
+
+    .badge.warning {
+      border-color: #ff9800;
+      color: #ff9800;
+    }
+
+    .agent-body {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Log Stream Timeline Styling */
+    .timeline {
       font-family: monospace;
       font-size: 0.75rem;
+      line-height: 1.8;
+    }
+
+    .log-line {
+      color: var(--text-muted);
+      border-bottom: 1px dashed rgba(255,255,255,0.05);
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+
+    .log-green {
+      color: var(--status-green);
+    }
+
+    .log-blue {
       color: #60a5fa;
-      display: none;
     }
   </style>
 </head>
@@ -243,15 +311,15 @@
     <div class="metrics-grid">
       <div class="metric-card">
         <div class="metric-label">Battery</div>
-        <div class="metric-value" id="val-battery">12.4 V</div>
+        <div class="metric-value val-green" id="val-battery">12.4 V</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">Door State</div>
-        <div class="metric-value" id="val-door">UNLOCKED</div>
+        <div class="metric-value val-green" id="val-door">UNLOCKED</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Odometer</div>
-        <div class="metric-value" id="val-odometer">-- km</div>
+        <div class="metric-label">Fuel Press.</div>
+        <div class="metric-value val-green" id="val-fuel">3.9 BAR</div>
       </div>
     </div>
 
@@ -276,31 +344,62 @@
         <button class="btn-action" onclick="runAgents()">🚀 Run Parallel Agents</button>
         <button class="btn-action btn-secondary" onclick="toggleLock()">🔒 Lock / Unlock</button>
       </div>
-
-      <div id="status-console" class="status-log"></div>
     </div>
+
+    <!-- Diagnostic Hypotheses Panel -->
+    <div class="panel" id="hypotheses-panel">
+      <div class="panel-header">🎯 Diagnostic Hypotheses</div>
+      
+      <div class="agent-card">
+        <div class="agent-card-header">
+          <span class="agent-title">Agent 1: Intake Air Leakage</span>
+          <span class="badge">Rating: 88%</span>
+        </div>
+        <div class="agent-body">
+          Codes P0171, P0174 indicate lean mixture on both banks. High probability of vacuum line rupture or faulty MAF sensor.
+        </div>
+      </div>
+
+      <div class="agent-card warning">
+        <div class="agent-card-header">
+          <span class="agent-title warning">Agent 2: Fuel Delivery Low</span>
+          <span class="badge warning">Rating: 74%</span>
+        </div>
+        <div class="agent-body">
+          Fuel pressure sitting at 3.9 BAR. Recommend checking fuel filter flow rate and pump duty cycle.
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Audit Panel -->
+    <div class="panel">
+      <div class="panel-header">📜 Agent Audit Timeline</div>
+      <div class="timeline" id="timeline-log">
+        <div class="log-line">[INIT] Telematics listener standby mode active.</div>
+        <div class="log-line log-green">[OAUTH SUCCESS] Smartcar auth code captured.</div>
+        <div class="log-line log-blue">[TELEMETRY] Simulated vehicle connected.</div>
+        <div class="log-line">[AGENT] FSM triggering diagnostic agents...</div>
+        <div class="log-line log-green">[COMPLETE] Diagnostic hypotheses generated.</div>
+      </div>
+    </div>
+
   </div>
 
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const vehicleId = params.get('vehicle_id');
-      const odometer = params.get('odometer');
       const dtc = params.get('dtc');
 
       if (vehicleId) {
         document.getElementById('field-vin').value = vehicleId;
-        logConsole(`Vehicle connected: ${vehicleId}`);
-      }
-      if (odometer) {
-        document.getElementById('val-odometer').innerText = `${odometer} km`;
+        addLog(`[TELEMETRY] Connected vehicle: ${vehicleId}`, 'log-blue');
       }
       if (dtc) {
         document.getElementById('field-dtc').value = dtc;
       }
     });
 
-    // Close menu when tapping anywhere outside
     document.addEventListener('click', (e) => {
       const dropdown = document.getElementById('options-dropdown');
       if (!e.target.closest('.options-wrapper')) {
@@ -314,25 +413,37 @@
       dropdown.classList.toggle('show');
     }
 
-    function logConsole(msg) {
-      const consoleEl = document.getElementById('status-console');
-      consoleEl.style.display = 'block';
-      consoleEl.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    function addLog(msg, cssClass = '') {
+      const timeline = document.getElementById('timeline-log');
+      const logLine = document.createElement('div');
+      logLine.className = `log-line ${cssClass}`;
+      logLine.innerText = msg;
+      timeline.appendChild(logLine);
     }
 
     function runAgents() {
-      logConsole('Initiating parallel diagnostic agents...');
+      addLog('[AGENT] Initiating parallel diagnostic agents...');
       setTimeout(() => {
-        logConsole('Agent analysis complete. Diagnostic payload synced.');
-      }, 1500);
+        document.getElementById('hypotheses-panel').style.display = 'block';
+        addLog('[COMPLETE] Diagnostic hypotheses generated.', 'log-green');
+      }, 1000);
     }
 
     function toggleLock() {
       const doorEl = document.getElementById('val-door');
-      const currentState = doorEl.innerText;
-      const newState = currentState === 'UNLOCKED' ? 'LOCKED' : 'UNLOCKED';
-      doorEl.innerText = newState;
-      logConsole(`Vehicle command executed: ${newState}`);
+      const isUnlocked = doorEl.innerText === 'UNLOCKED';
+      
+      if (isUnlocked) {
+        doorEl.innerText = 'LOCKED';
+        doorEl.className = 'metric-value val-red';
+        addLog('[CMD] Sending LOCK command...', 'log-blue');
+        addLog('[SIM] Network bypass: Toggled lock state locally.', 'log-blue');
+      } else {
+        doorEl.innerText = 'UNLOCKED';
+        doorEl.className = 'metric-value val-green';
+        addLog('[CMD] Sending UNLOCK command...', 'log-blue');
+        addLog('[SIM] Network bypass: Toggled lock state locally.', 'log-blue');
+      }
     }
   </script>
 </body>
