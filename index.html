@@ -106,8 +106,8 @@
 
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
       margin-bottom: 20px;
     }
 
@@ -115,12 +115,12 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 12px;
+      padding: 10px 6px;
       text-align: center;
     }
 
     .metric-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -128,7 +128,7 @@
     }
 
     .metric-value {
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 700;
     }
 
@@ -217,7 +217,6 @@
       background: #00838f;
     }
 
-    /* Diagnostic Cards Styling */
     .agent-card {
       background: #0e1626;
       border-left: 4px solid #00d2ff;
@@ -253,7 +252,6 @@
       font-size: 0.75rem;
       padding: 2px 8px;
       border-radius: 4px;
-
     }
 
     .badge.warning {
@@ -267,7 +265,6 @@
       line-height: 1.4;
     }
 
-    /* Log Stream Timeline Styling */
     .timeline {
       font-family: monospace;
       font-size: 0.75rem;
@@ -318,8 +315,12 @@
         <div class="metric-value val-green" id="val-door">UNLOCKED</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Fuel Press.</div>
-        <div class="metric-value val-green" id="val-fuel">3.9 BAR</div>
+        <div class="metric-label">Odometer</div>
+        <div class="metric-value val-green" id="val-odometer">-- km</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Fuel Level</div>
+        <div class="metric-value val-green" id="val-fuel">⛽ 78%</div>
       </div>
     </div>
 
@@ -346,7 +347,6 @@
       </div>
     </div>
 
-    <!-- Diagnostic Hypotheses Panel -->
     <div class="panel" id="hypotheses-panel">
       <div class="panel-header">🎯 Diagnostic Hypotheses</div>
       
@@ -371,7 +371,6 @@
       </div>
     </div>
 
-    <!-- Timeline Audit Panel -->
     <div class="panel">
       <div class="panel-header">📜 Agent Audit Timeline</div>
       <div class="timeline" id="timeline-log">
@@ -389,11 +388,16 @@
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const vehicleId = params.get('vehicle_id');
+      const odometer = params.get('odometer');
       const dtc = params.get('dtc');
 
       if (vehicleId) {
         document.getElementById('field-vin').value = vehicleId;
         addLog(`[TELEMETRY] Connected vehicle: ${vehicleId}`, 'log-blue');
+      }
+      if (odometer) {
+        document.getElementById('val-odometer').innerText = `${odometer} km`;
+        addLog(`[TELEMETRY] Odometer verified: ${odometer} km`, 'log-green');
       }
       if (dtc) {
         document.getElementById('field-dtc').value = dtc;
