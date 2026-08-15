@@ -12,11 +12,12 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // 1. Smartcar Login Route: Standard parameters
+    // Smartcar Application ID for Connect Flow
+    const clientId = env.SMARTCAR_CLIENT_ID || 'b29a00b0-21d3-46d3-b942-6be8e474ce04';
+    const redirectUri = env.SMARTCAR_REDIRECT_URI || 'https://garage-agent-api.gnfcw9w5rk.workers.dev/oauth/callback';
+
+    // 1. Smartcar Login Route
     if (url.pathname === '/login') {
-      const clientId = env.SMARTCAR_CLIENT_ID || 'client_01M005QGMRN80T4W3Q6MCFEK14';
-      const redirectUri = env.SMARTCAR_REDIRECT_URI || 'https://garage-agent-api.gnfcw9w5rk.workers.dev/oauth/callback';
-      
       const authUrl = `https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=read_vehicle_info+read_odometer+read_location&mode=test`;
       return Response.redirect(authUrl, 302);
     }
@@ -30,9 +31,6 @@ export default {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       }
-
-      const clientId = env.SMARTCAR_CLIENT_ID || 'client_01M005QGMRN80T4W3Q6MCFEK14';
-      const redirectUri = env.SMARTCAR_REDIRECT_URI || 'https://garage-agent-api.gnfcw9w5rk.workers.dev/oauth/callback';
 
       const tokenResponse = await fetch('https://auth.smartcar.com/oauth/token', {
         method: 'POST',
