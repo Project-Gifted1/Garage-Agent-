@@ -34,6 +34,7 @@
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 20px;
+      position: relative;
     }
 
     .brand-title {
@@ -49,6 +50,10 @@
       margin-top: 4px;
     }
 
+    .options-wrapper {
+      position: relative;
+    }
+
     .btn-options {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -57,6 +62,46 @@
       border-radius: 6px;
       font-size: 0.85rem;
       cursor: pointer;
+    }
+
+    /* Dropdown Menu Overlay */
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 6px;
+      width: 220px;
+      background: #101728;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      cursor: pointer;
+    }
+
+    .dropdown-item:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-item.disabled {
+      color: var(--text-muted);
+      opacity: 0.6;
     }
 
     .metrics-grid {
@@ -185,7 +230,14 @@
         <h1 class="brand-title">🔧 Garage Agent™</h1>
         <div class="brand-sub">Project_Gifted1™ Autonomous AI Diagnostics</div>
       </div>
-      <button class="btn-options" onclick="toggleMenu()">⚙️ Options ▾</button>
+      <div class="options-wrapper">
+        <button class="btn-options" onclick="toggleMenu(event)">⚙️ Options ▾</button>
+        <div id="options-dropdown" class="dropdown-menu">
+          <div class="dropdown-item">🟢 FSM Status: Active</div>
+          <div class="dropdown-item disabled">🏎️ ECU Remapping (Beta)</div>
+          <div class="dropdown-item disabled">📺 Repair Video Guides</div>
+        </div>
+      </div>
     </header>
 
     <div class="metrics-grid">
@@ -230,7 +282,6 @@
   </div>
 
   <script>
-    // Automatically parse incoming URL parameters from authorization callback
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search);
       const vehicleId = params.get('vehicle_id');
@@ -248,6 +299,20 @@
         document.getElementById('field-dtc').value = dtc;
       }
     });
+
+    // Close menu when tapping anywhere outside
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('options-dropdown');
+      if (!e.target.closest('.options-wrapper')) {
+        dropdown.classList.remove('show');
+      }
+    });
+
+    function toggleMenu(e) {
+      e.stopPropagation();
+      const dropdown = document.getElementById('options-dropdown');
+      dropdown.classList.toggle('show');
+    }
 
     function logConsole(msg) {
       const consoleEl = document.getElementById('status-console');
@@ -268,10 +333,6 @@
       const newState = currentState === 'UNLOCKED' ? 'LOCKED' : 'UNLOCKED';
       doorEl.innerText = newState;
       logConsole(`Vehicle command executed: ${newState}`);
-    }
-
-    function toggleMenu() {
-      alert('Garage Agent™ System Menu\n- Status: Production Ready\n- API: Cloudflare Worker Active');
     }
   </script>
 </body>
