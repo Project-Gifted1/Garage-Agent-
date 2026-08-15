@@ -2,7 +2,6 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    // Dynamic CORS Headers to allow web frontends to query the API
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -13,16 +12,17 @@ export default {
       return new Response(null, { headers: corsHeaders });
     }
 
-    // 1. Smartcar Login Route: Redirects directly to Smartcar Connect (Test Mode)
+    // 1. Smartcar Login Route: Includes scope parameter required by Smartcar API
     if (url.pathname === '/login') {
       const clientId = env.SMARTCAR_CLIENT_ID || 'client_01M005QGMRN80T4W3Q6MCFEK14';
       const redirectUri = env.SMARTCAR_REDIRECT_URI || 'https://garage-agent-api.gnfcw9w5rk.workers.dev/oauth/callback';
+      const scope = encodeURIComponent('required:read_vehicle_info required:read_odometer required:read_location');
       
-      const authUrl = `https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&mode=test`;
+      const authUrl = `https://connect.smartcar.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scope}&mode=test`;
       return Response.redirect(authUrl, 302);
     }
 
-    // 2. Smartcar OAuth Token Exchange Route: Receives auth code and fetches access token
+    // 2. Smartcar OAuth Token Exchange Route
     if (url.pathname === '/oauth/callback') {
       const code = url.searchParams.get('code');
       if (!code) {
@@ -54,7 +54,7 @@ export default {
       });
     }
 
-    // 3. Default API Status Response
+    // 3. Default Response
     return new Response(JSON.stringify({ message: "Garage Agent Worker Active" }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
